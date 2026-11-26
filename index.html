@@ -1047,7 +1047,6 @@ function vGoals(M){const G=D.goals;if(!G)return '<div class="empty">Loading your
   const key2=M.hs.filter(x=>KEY_AREAS.indexOf(x.area)>=0);let Dn=0,T=0;key2.forEach(x=>{Dn+=x.D;T+=x.T});
   const linked={};G.list.forEach(g=>(g.habits||[]).forEach(id=>{linked[id]=1}));
   const un=M.hs.filter(x=>!linked[x.id]&&KEY_AREAS.indexOf(x.area)<0);
-  if(key2.length)h+='<section class="card flat"><div class="row"><h2>Keystone routines</h2><span class="spacer"></span><span class="pill s-'+st(T?Dn/T:null)+'">'+pct(T?Dn/T:null)+' '+esc(qShort())+'</span></div><p class="note">Your Start Up and Shutdown routines support every goal rather than one.</p><p style="margin:8px 0 0">'+key2.map(x=>esc(x.name)).join(" · ")+'</p></section>';
   h+='<section class="card flat"><h2>Habits not linked to a goal</h2><p class="note" style="margin-top:6px">'+(un.length?"These don’t feed any goal. Consider linking, dropping or keeping them as low-effort maintenance: "+un.map(x=>esc(x.name)).join(", "):"Every habit outside your routines feeds a goal.")+'</p></section>';
   h+='<div class="row"><span class="note">Deadline</span><input class="inp" type="date" data-gdl="1" value="'+esc(G.deadline||"")+'" aria-label="Goal deadline" style="width:auto"></div>';
   h+=habitsEditor();
