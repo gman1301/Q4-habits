@@ -646,6 +646,20 @@ main{max-width:780px}
 @media (max-width:420px){.wg-p{font-size:10px;letter-spacing:-.02em}}
 .rgrid2 .cell{display:grid;place-items:center}.rgrid2 .cell.d-done svg{opacity:1}.rgrid2 .cell.d-x .xm{font-size:13px}
 .lbtn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding:6px 10px;font-size:13px}.toolrow:has(.lbtn){flex-wrap:nowrap;gap:6px}.toolrow:has(.lbtn) .seg button{padding-inline:10px;white-space:nowrap}@media (max-width:400px){.lbtn svg{display:none}.lbtn{padding:6px 9px}.toolrow:has(.lbtn) .seg button{padding-inline:8px;font-size:13px}}.lbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+/* tap the name to edit, the circle to tick */
+.hrow .nm.hnb{flex:1;min-width:0;display:grid;gap:6px;background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.hrow .nm.hnb:hover .hname,.hrow .nm.hnb:focus-visible .hname{text-decoration:underline}
+.hrow .chk{cursor:pointer;padding:0}.hrow .chk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}.hrow .chk[aria-pressed="true"] svg{opacity:1}
+.hrow.on .hname{color:var(--muted)}
+.wg-nb{background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer;min-width:0}.wg-nb:hover .wg-n,.wg-nb:focus-visible .wg-n{text-decoration:underline}
+.sheetbg{position:fixed;inset:0;background:rgba(15,27,51,.45);z-index:60}
+.sheet{position:fixed;z-index:61;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,100%);max-height:88vh;overflow:auto;background:var(--panel);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:12px;box-shadow:0 -6px 30px rgba(15,27,51,.2)}
+@media (min-width:700px){.sheet{bottom:auto;top:50%;transform:translate(-50%,-50%);border-radius:20px}}
+.sheet:focus{outline:none}.sheet h2{font-size:19px}
+.sheet .sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sheet .fld{display:grid;gap:4px}.sheet .fld label{font-size:13px;font-weight:600;color:var(--muted)}
+.sheet-foot{gap:8px;flex-wrap:wrap;align-items:center}
+body.sheet-open{overflow:hidden}
 </style>
 </head>
 <body>
@@ -1020,6 +1034,23 @@ function goalsCard(M){if(!D.goals||!D.goals.list.length)return "";
 function goalCheckin(w){if(!D.goals||!D.goals.list.length)return "";const L=(D.goals.log||{})[String(w)]||{},v=k=>L[k]==null?"":L[k];
   return '<section class="card"><h2>Goal check-in</h2><p class="note">Where each goal stands at the end of week '+w+'. Use running totals for clients, savings and books, and this week’s score for 1–10 ratings. Leave blank if you didn’t measure.</p><div class="qs" style="margin-top:12px">'+D.goals.list.map(g=>'<div class="q"><label for="gl-'+esc(g.id)+'">'+esc(g.name)+' <span class="muted" style="font-weight:500">· '+esc(g.unit||"")+', target '+fv(g,gnum(g.target))+'</span></label><input class="inp" type="number" step="any" inputmode="decimal" id="gl-'+esc(g.id)+'" data-gl="'+esc(g.id)+'" value="'+esc(v(g.id))+'">'+(g.lead?'<label for="gl-'+esc(g.id)+'-lead" style="margin-top:8px">'+esc(g.lead.name)+' this week <span class="muted" style="font-weight:500">· target '+esc(g.lead.target==null?"–":g.lead.target)+'</span></label><input class="inp" type="number" step="any" inputmode="decimal" id="gl-'+esc(g.id)+'-lead" data-gl="'+esc(g.id)+'_lead" value="'+esc(v(g.id+"_lead"))+'">':'')+'</div>').join("")+'</div></section>'}
 
+/* ---------- habit editor (opened by tapping a habit's name) ---------- */
+function editSheet(M){if(VIEW||!S.edit)return "";const c=cfg(),i=c.habits.findIndex(h=>h.id===S.edit);if(i<0){S.edit=null;return ""}
+  const x=c.habits[i],hm=M.hs.find(h=>h.id===x.id)||x,cw=M.cw||M.N,G=D.goals&&D.goals.list||[];
+  let h='<div class="sheetbg" data-act="hclose"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t" tabindex="-1" id="sheet"><div class="row"><h2 id="sheet-t">Edit habit</h2><span class="spacer"></span><button class="iconbtn" type="button" data-act="hclose" aria-label="Close">×</button></div>';
+  h+='<p class="note">'+(hm.done?'This week '+hm.done[cw-1]+'/'+(hm.std||0)+' · '+esc(qShort())+' checks '+pct(hm.cp)+' · weeks met '+(hm.D||0)+'/'+(hm.T||0):'')+'</p>';
+  h+='<div class="fld"><label for="he-name">Name</label><input class="inp" id="he-name" data-hf="name" data-i="'+i+'" value="'+esc(x.name)+'"></div>';
+  h+='<div class="sgrid"><div class="fld"><label for="he-area">Area</label><select id="he-area" data-hf="area" data-i="'+i+'">'+c.areas.map(a=>'<option'+(a===x.area?" selected":"")+'>'+esc(a)+'</option>').join("")+'</select></div>'+
+     '<div class="fld"><label for="he-std">Days per week</label><select id="he-std" data-hf="std" data-i="'+i+'">'+[0,1,2,3,4,5,6,7].map(n=>'<option value="'+n+'"'+(n===Number(x.std)?" selected":"")+'>'+(n?n+' day'+(n===1?'':'s'):'No target')+'</option>').join("")+'</select></div>';
+  if(isNum(x))h+='<div class="fld"><label for="he-target">Daily target</label><input class="inp" id="he-target" type="number" min="0" step="any" inputmode="decimal" data-hf="target" data-i="'+i+'" value="'+nf(x.target||1)+'"></div><div class="fld"><label for="he-unit">Unit</label><input class="inp" id="he-unit" data-hf="unit" data-i="'+i+'" value="'+esc(x.unit||"")+'" placeholder="e.g. litres"></div>';
+  else h+='<div class="fld"><label for="he-pomo">Pomodoros a day</label><input class="inp" id="he-pomo" type="number" min="0" max="12" step="1" inputmode="numeric" data-hf="pomo" data-i="'+i+'" value="'+(Number(x.pomo)||0)+'"></div>';
+  h+='</div><p class="note">Days per week is the weekly standard. A change applies from this week on; finished weeks keep their old standard.'+(isNum(x)?'':' With a Pomodoro goal, the habit ticks itself once you finish that many in a day; 0 means a normal tick.')+'</p>';
+  if(D.goals)h+='<div class="fld"><label for="he-it">If-then plan</label><input class="inp" id="he-it" type="text" data-it="'+esc(x.id)+'" value="'+esc((D.goals.ifthen||{})[x.id]||"")+'" placeholder="If [time or cue], then I [habit]"></div>';
+  if(G.length)h+='<fieldset class="shsec"><legend>Drives these goals</legend>'+G.map(g=>'<label><input type="checkbox" data-gh="'+esc(x.id)+'" data-g="'+esc(g.id)+'"'+((g.habits||[]).indexOf(x.id)>=0?" checked":"")+'> '+esc(g.name)+'</label>').join("")+'</fieldset>';
+  h+='<div class="row sheet-foot">'+(S.confirm==="del"+i?'<span class="note"><b>Delete '+esc(x.name)+'?</b> Its check-offs are removed too.</span><button class="btn danger sm" type="button" data-act="delhabit" data-i="'+i+'">Delete</button><button class="btn sm" type="button" data-act="cancel">Keep</button>':
+     '<button class="btn danger sm" type="button" data-act="askdel" data-i="'+i+'">Delete habit</button><button class="linkbtn" type="button" data-act="hall">All habit settings</button><span class="spacer"></span><button class="btn primary" type="button" data-act="hclose">Done</button>')+'</div></div>';
+  return h}
+
 /* ---------- navigation ---------- */
 const NAVV=()=>VIEW?NAV.filter(n=>["today","week","dashboard"].indexOf(n[0])>=0):NAV;
 const TABS=()=>NAVV().filter(n=>["today","week","goals","dashboard","coach"].indexOf(n[0])>=0);
@@ -1027,7 +1058,7 @@ function nav(){document.getElementById("tabs").style.gridTemplateColumns="repeat
   const g=document.getElementById("gear");if(g){if(S.view==="setup")g.setAttribute("aria-current","page");else g.removeAttribute("aria-current")}
   const b=v=>TABS().map(([id,l,ic])=>'<button type="button" data-nav="'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+(v?'<span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true">'+ic+'</svg></span>':'')+esc(l)+'</button>').join("");
   document.getElementById("tabs").innerHTML=b(true);document.getElementById("topnav").innerHTML=b(false)}
-function go(v){S.undo=null;S.sticky=null;if(!NAVV().some(n=>n[0]===v))v="today";S.allPace=false;S.view=v;S.confirm=null;S.convert=null;if(location.hash!=="#"+v){try{history.replaceState(null,"","#"+v)}catch(e){}}render();window.scrollTo(0,0)}
+function go(v){S.undo=null;S.edit=null;S.sticky=null;if(!NAVV().some(n=>n[0]===v))v="today";S.allPace=false;S.view=v;S.confirm=null;S.convert=null;if(location.hash!=="#"+v){try{history.replaceState(null,"","#"+v)}catch(e){}}render();window.scrollTo(0,0)}
 window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==S.view)go(v)});
 
 /* ---------- render ---------- */
@@ -1045,7 +1076,8 @@ function renderInner(){nav();const m=document.getElementById("main");const br=do
   if(!S.revWeek){let w=M.cw||W();if(M.t<we(w))w=Math.max(1,w-1);S.revWeek=w}
   document.getElementById("sub").textContent="2026 · "+md(start())+" – "+md(we(W()));
   const cseg=(S.view==="coach"||S.view==="review")&&!VIEW?'<div class="coachseg"><div class="seg" role="group" aria-label="Coach section"><button type="button" data-nav="coach" aria-pressed="'+(S.view==="coach")+'">Coach</button><button type="button" data-nav="review" aria-pressed="'+(S.view==="review")+'">Sunday review</button></div></div>':"";
-  m.innerHTML=(SY.conflict?conflictBanner():"")+cseg+({today:vToday,week:vWeek,goals:vGoals,dashboard:vDash,coach:vCoach,review:vReview,setup:vSetup})[S.view](M);
+  m.innerHTML=(SY.conflict?conflictBanner():"")+cseg+({today:vToday,week:vWeek,goals:vGoals,dashboard:vDash,coach:vCoach,review:vReview,setup:vSetup})[S.view](M)+editSheet(M);
+  document.body.classList.toggle("sheet-open",!!S.edit);
   setStatus();
 }
 
@@ -1093,14 +1125,14 @@ function habitRow(x,k,w,stt,miss,M){const on=has(k,x.id),mk=isMiss(k,x.id)&&!on,
   const xb=VIEW?'':'<button class="iconbtn xbtn" type="button" data-act="miss" data-k="'+k+'" data-h="'+esc(x.id)+'" aria-pressed="'+mk+'" aria-label="Mark '+esc(x.name)+' not done" title="Not done">✕</button>';
   const tb=isT?timerBtn(x,k):'';
   if(isNum(x)){const v=val(k,x.id);
-    return '<div class="hwrap'+(mk?' miss':'')+'"><div class="habit hrow num" data-met="'+on+'"><span class="nm">'+title+meta+'</span>'+
+    return '<div class="hwrap'+(mk?' miss':'')+'"><div class="habit hrow num" data-met="'+on+'"><button type="button" class="nm hnb" data-act="hedit" data-h="'+esc(x.id)+'" aria-label="Edit '+esc(x.name)+'">'+title+meta+'</button>'+
     '<div class="stepper"><button class="iconbtn" type="button" data-act="step" data-k="'+k+'" data-h="'+esc(x.id)+'" data-d="-1" aria-label="Less '+esc(x.name)+'"'+(v?"":" disabled")+'>−</button>'+
     '<input class="numin" type="number" inputmode="decimal" min="0" step="any" placeholder="0" data-nv="1" data-k="'+k+'" data-h="'+esc(x.id)+'" value="'+nf(v)+'" aria-label="'+esc(x.name)+' amount'+(x.unit?" in "+esc(x.unit):"")+'">'+
     '<button class="iconbtn" type="button" data-act="step" data-k="'+k+'" data-h="'+esc(x.id)+'" data-d="1" aria-label="More '+esc(x.name)+'">+</button></div></div><span class="hact">'+tb+xb+'</span></div>'}
-  if(g)return '<div class="hwrap'+(mk?' miss':'')+'"><div class="habit hrow num" data-met="'+on+'"><span class="nm">'+title+meta+'</span>'+
+  if(g)return '<div class="hwrap'+(mk?' miss':'')+'"><div class="habit hrow num" data-met="'+on+'"><button type="button" class="nm hnb" data-act="hedit" data-h="'+esc(x.id)+'" aria-label="Edit '+esc(x.name)+'">'+title+meta+'</button>'+
     '<div class="stepper"><button class="iconbtn" type="button" data-act="pstep" data-k="'+k+'" data-h="'+esc(x.id)+'" data-d="-1" aria-label="One less Pomodoro on '+esc(x.name)+'"'+(pc?"":" disabled")+'>−</button><b class="pcn" aria-live="polite">'+pc+'<small>/'+g+'</small></b>'+
     '<button class="iconbtn" type="button" data-act="pstep" data-k="'+k+'" data-h="'+esc(x.id)+'" data-d="1" aria-label="One more Pomodoro on '+esc(x.name)+'">+</button></div></div><span class="hact">'+tb+xb+'</span></div>';
-  return '<div class="hwrap'+(mk?' miss':'')+'"><button type="button" class="habit hrow" data-act="tick" data-k="'+k+'" data-h="'+esc(x.id)+'" aria-pressed="'+on+'"><span class="nm">'+title+meta+'</span><span class="chk">'+CHECK+'</span></button><span class="hact">'+tb+xb+'</span></div>'}
+  return '<div class="hwrap'+(mk?' miss':'')+'"><div class="habit hrow'+(on?' on':'')+'"><button type="button" class="nm hnb" data-act="hedit" data-h="'+esc(x.id)+'" aria-label="Edit '+esc(x.name)+'">'+title+meta+'</button><button type="button" class="chk" data-act="tick" data-k="'+k+'" data-h="'+esc(x.id)+'" aria-pressed="'+on+'" aria-label="'+esc(x.name)+(on?': done, tap to undo':': tick off')+'">'+CHECK+'</button></div><span class="hact">'+tb+xb+'</span></div>'}
 function routineAreas(M){return M.areas.filter(a=>a.list.filter(x=>!isNum(x)).length>=3)}
 function routineStreak(a,d){let n=0;for(let i=0;i<60;i++){const dt=add(d,-i);if(dt<start())break;const k=key(dt);if(a.list.filter(x=>!isNum(x)).every(x=>has(k,x.id)))n++;else break}return n}
 function routineChips(M,k,mode){return routineAreas(M).map(a=>{const cb=a.list.filter(x=>!isNum(x)),left=cb.filter(x=>!has(k,x.id)).length;
@@ -1186,7 +1218,7 @@ function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.pus
   h+='<section class="wgrid" aria-label="Week '+w+' grid"><div class="wg-row wg-h"><span class="wg-n">Habit</span>'+days.map((dt,i)=>'<span class="wg-d'+(key(dt)===t?" td":"")+'"><small>'+DN[i]+'</small>'+dt.getDate()+'</span>').join("")+'<span class="wg-c">Done</span></div>';
   M.areas.forEach(ar=>{const shown=hide?ar.list.filter(x=>!isDone(x)):ar.list;if(!shown.length)return;const hid=ar.list.length-shown.length;
     h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+(c=>c.b?c.a+'/'+c.b+' checks · '+pct(c.p):'–')(wkChecks(ar.list,w))+(m=>m.b?' · '+m.a+'/'+m.b+' met':'')(M.wkMet(ar.list,w))+'</span></div>';
-    shown.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt)||dt>M.t;
+    shown.forEach(x=>{h+='<div class="wg-row">'+(VIEW?'<span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>':'<button type="button" class="wg-nb" data-act="hedit" data-h="'+esc(x.id)+'" aria-label="Edit '+esc(x.name)+'"><span class="wg-n">'+esc(x.name)+'</span></button>')+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt)||dt>M.t;
         const xm=!on&&isMiss(k,x.id),st=on?"d-done":xm?"d-x":k===t?(pl?"d-todayplan":"d-today"):dt<M.t?"d-miss":pl?"d-plan":"d-future";
         const lab=esc(x.name)+', '+esc(fmt(dt,{weekday:"long",month:"short",day:"numeric"}))+': '+word[st];
         if(isNum(x))return '<span class="wg-cell'+(k===t?" td":"")+'"><input class="cell numcell '+st+(on?" met":"")+(pl&&!on?" plan":"")+'" type="number" inputmode="decimal" min="0" step="any" data-nv="1" data-k="'+k+'" data-h="'+esc(x.id)+'" value="'+nf(val(k,x.id))+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'></span>';
@@ -1653,6 +1685,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="pper"){S.pomoPer=b.dataset.v;return render()}
   if(a==="wfresh"){UI.welcomed=1;saveUI();return render()}
   if(a==="wlink"||a==="wrestore"){const r=a==="wrestore";go("setup");setTimeout(()=>{const el=document.getElementById(r?"import-file":"sync-in");if(!el)return;if(r){const lb=document.querySelector('label[for="import-file"]');if(lb){lb.scrollIntoView({block:"center"});lb.focus&&lb.focus()}}else{el.scrollIntoView({block:"center"});el.focus()}},60);return}
+  if(a==="hedit"){S.edit=b.dataset.h;S.confirm=null;render();const sh=document.getElementById("sheet");if(sh)sh.focus({preventScroll:true});return}
+  if(a==="hclose"){const id=S.edit;S.edit=null;S.confirm=null;render();const back=id&&document.querySelector('[data-act="hedit"][data-h="'+CSS.escape(id)+'"]');if(back)back.focus({preventScroll:true});return}
+  if(a==="hall"){S.edit=null;S.confirm=null;return go("setup")}
   if(a==="nudgeok"){cfg().nudgeSeen=SY.nudge;persist();return render()}
   if(a==="tick"){const k=b.dataset.k,id=b.dataset.h;const arr=(D.ticks[k]||[]).slice();const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else{arr.push(id);setMiss(k,id,false)}
     if(i<0&&S.view==="today"){const hh=hab(id);S.undo={k,ids:[id],label:hh?hh.name:"habit"};armUndo()}
@@ -1778,7 +1813,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="useonline")return resolve("online");
   if(a==="keeplocal")return resolve("local");
   if(a==="askdel"){S.confirm="del"+b.dataset.i;return render()}
-  if(a==="delhabit"){const i=Number(b.dataset.i),h=cfg().habits[i];cfg().habits.splice(i,1);purge([h.id]);S.confirm=null;persist();toast("Removed "+h.name);return render()}
+  if(a==="delhabit"){S.edit=null;const i=Number(b.dataset.i),h=cfg().habits[i];cfg().habits.splice(i,1);purge([h.id]);S.confirm=null;persist();toast("Removed "+h.name);return render()}
   if(a==="export")return exportData();
   if(a==="doimport"&&pendingImport){D.cfg=areasOf(pendingImport.cfg);takeData(pendingImport);pendingImport=null;S.confirm=null;S.day=null;S.week=null;S.revWeek=null;persist();toast("Backup restored");return render()}
   if(a==="cancel"){S.confirm=null;S.convert=null;pendingImport=null;return render()}
@@ -1814,7 +1849,8 @@ const M0=()=>model();
 function keepRow(k,id){if(!S.sticky||S.sticky.k!==k)S.sticky={k,ids:[]};if(S.sticky.ids.indexOf(id)<0)S.sticky.ids.push(id)}
 function armUndo(){const u=S.undo;setTimeout(()=>{if(S.undo===u){S.undo=null;if(S.view==="today")safeRender()}},6000)}
 document.addEventListener("toggle",e=>{const el=e.target;if(el&&el.dataset){if(el.dataset.shd)S.shOpen=el.open;if(el.dataset.gd)S.gOpen[el.dataset.gd]=el.open;if(el.dataset.gc)S.gCard[el.dataset.gc]=el.open}if(el&&el.classList&&el.classList.contains("plan")){S.planOpen=el.open?Number(el.id.slice(5)):0}},true);
-document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="commit-in"){e.preventDefault();document.querySelector('[data-act="addcommit"]').click()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.edit){S.edit=null;S.confirm=null;return render()}
+  if(e.key==="Enter"&&e.target.id==="commit-in"){e.preventDefault();document.querySelector('[data-act="addcommit"]').click()}
   if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)&&e.target.id==="reply-in"){e.preventDefault();sendReply()}});
 document.addEventListener("change",e=>{const el=e.target;if(VIEW)return;
   if(D.goals&&el.dataset){
