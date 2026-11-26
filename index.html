@@ -631,6 +631,15 @@ main{max-width:780px}
 .trend .tb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;background:none;border:0;padding:0;cursor:pointer;color:var(--ink)}
 .trend .tb i{display:block;width:100%;max-width:34px;border-radius:4px 4px 1px 1px;background:var(--h1)}.trend .tb.cur i{background:var(--accent)}.trend .tb b{font-size:10px}.trend .tb small{font-size:11px;color:var(--muted)}
 @media (max-width:420px){.rrow{grid-template-columns:minmax(0,1fr) 40px}.rrow .rdots{grid-column:1/-1;order:3}}
+.arow2 .am{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.q4areas{margin-top:6px}
+.legend2 .ln{display:inline-block;width:18px;height:0;border-top:3px solid var(--accent);vertical-align:middle;margin-right:4px}.legend2 .ln.dash{border-top:2px dashed var(--muted)}
+.sbox{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}.sbox h3{font-size:15px}
+.welcome{border:2px solid var(--accent)}
+.shwrap{padding:0}.shwrap>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:pointer}.shwrap>summary::-webkit-details-marker{display:none}.shwrap[open]>summary .gchev{transform:rotate(180deg)}
+.shwrap .sharebox{border:0;border-top:1px solid var(--line);border-radius:0;margin:0}
+.shauto{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}.shauto input{margin-top:3px}
+.gq{gap:10px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -668,7 +677,7 @@ const NAV=[
  ["review","Review",'<path d="M5 4h11l3 3v13H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 11h7M8.5 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'],
  ["setup","Settings",'<circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>']];
 const CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const QUESTIONS=[["q1","Which habit am I proudest of this week, and what made it work?"],["q2","What slipped, and what got in the way?"],["closer","Am I closer to my 2026 outcomes than last Sunday?"],["q4","What one change next week would make the most difference?"],["q5","Who do I want to show up for this week, and when?"]];
+const QUESTIONS=[["q1","Which habit am I proudest of this week, and what made it work?"],["q2","What slipped, and what got in the way?"],["closer","Am I closer to my goals than last Sunday?"],["q4","What one change next week would make the most difference?"],["q5","Who do I want to show up for this week, and when?"]];
 const MODELS=[["claude-sonnet-5-5","Claude Sonnet 5.5 (recommended)"],["claude-opus-5-5","Claude Opus 5.5 (deepest)"],["claude-haiku-5-5","Claude Haiku 5.5 (fastest)"]];
 const DAY=864e5, DN=["M","T","W","T","F","S","S"];
 
@@ -695,6 +704,7 @@ function areasOf(c){if(!Array.isArray(c.areas))c.areas=[];delete c.hidden;c.habi
   if(c.work==null)c.work=25;if(c.rest==null)c.rest=5;
   if(!c.shareCfg||typeof c.shareCfg!=="object")c.shareCfg={sections:{trend:true,goals:"status",pomo:true},hide:[]};c.shareCfg.sections=c.shareCfg.sections||{};c.shareCfg.hide=c.shareCfg.hide||[];
   if(!c.migPomo){c.habits.forEach(h=>{if(h.pomo==null&&h.type!=="number"&&/pomodoro/i.test(h.name||"")){const m=String(h.name).match(/(\d+)\s*\/\s*day/i);h.pomo=m?Number(m[1]):5}});c.migPomo=true}
+  if(!c.migSil){const sh=c.habits.find(h=>h.id==="silence");if(sh&&Number(sh.pomo)===1)sh.pomo=0;c.migSil=true}
   if(!Array.isArray(c.reminders))c.reminders=[{id:"am",label:"Start Up routine",time:"06:30",rule:"daily"},{id:"pm",label:"Shutdown routine",time:"21:00",rule:"daily"},{id:"sun",label:"Sunday review",time:"17:00",rule:"SU"}];
   return c}
 const DATA_KEYS=[["ticks",{}],["vals",{}],["reviews",{}],["sessions",[]],["commits",{}],["notes",{}],["plans",{}],["focus",{}],["outcomeLog",{}],["archive",[]],["miss",{}],["pomos",{}],["hist",{}],["shareRep",null],["goals",null]];
@@ -868,21 +878,21 @@ function model(){
   const logged=[];for(let w=1;w<=N;w++)logged.push(we(w)<t);
   let lw=0,wl=0;logged.forEach((l,i)=>{if(l){lw=i+1;wl++}});
   const hs=H.map((h,i)=>{const d=done[i],sw=[];for(let w=1;w<=N;w++)sw.push(logged[w-1]?stdOf(h,w):h.std);
-    const met=d.map((n,j)=>sw[j]>0&&n>=sw[j]);let Dn=0,T=0,bonus=0;
-    for(let j=0;j<N;j++){if(!logged[j]||!(sw[j]>0))continue;T++;if(met[j])Dn++;bonus+=Math.max(0,d[j]-sw[j])}
+    const met=d.map((n,j)=>sw[j]>0&&n>=sw[j]);let Dn=0,T=0,bonus=0,Cc=0,CT=0;
+    for(let j=0;j<N;j++){if(!logged[j]||!(sw[j]>0))continue;T++;if(met[j])Dn++;bonus+=Math.max(0,d[j]-sw[j]);Cc+=Math.min(d[j],sw[j]);CT+=sw[j]}
     const p=T?Dn/T:null;let streak=null,best=null,trend=null;
     if(T){let run=0;best=0;for(let j=0;j<N;j++){if(!logged[j]||!(sw[j]>0))continue;run=met[j]?run+1:0;best=Math.max(best,run)}streak=run;
       if(lw>=2){const last=d[lw-1];let s=0,k=0;for(let n=Math.max(1,lw-3);n<lw;n++){s+=d[n-1];k++}const prev=k?s/k:0;trend={last,prev,dir:last>prev?1:last<prev?-1:0}}}
     let sums=null;if(isNum(h)){sums=[];for(let w=1;w<=N;w++){let s=0;for(let j=0;j<7;j++)s+=val(key(add(ws(w),j)),h.id)||0;sums.push(Math.round(s*100)/100)}}
-    return {...h,i,done:d,sw,met,sums,D:Dn,T,p,s:st(p),streak,best,trend,bonus,needed:null,cur:cw?d[cw-1]:0}});
+    return {...h,i,done:d,sw,met,sums,D:Dn,T,p,s:st(p),C:Cc,CT,cp:CT?Cc/CT:null,streak,best,trend,bonus,needed:null,cur:cw?d[cw-1]:0}});
   const wkMet=(list,w)=>{let a=0,b=0;list.forEach(h=>{const s=h.sw[w-1];if(s>0){b++;if(h.done[w-1]>=s)a++}});return {a,b,p:b?a/b:null}};
   const areaNames=c.areas.filter(a=>H.some(h=>h.area===a));H.forEach(h=>{if(areaNames.indexOf(h.area)<0)areaNames.push(h.area)});
-  const areas=areaNames.map(a=>{const list=hs.filter(h=>h.area===a);let Dn=0,T=0;list.forEach(h=>{Dn+=h.D;T+=h.T});
+  const areas=areaNames.map(a=>{const list=hs.filter(h=>h.area===a);let Dn=0,T=0,Cc=0,CT=0;list.forEach(h=>{Dn+=h.D;T+=h.T;Cc+=h.C;CT+=h.CT});
     const weeks=[];for(let w=1;w<=N;w++)weeks.push(logged[w-1]?wkMet(list,w).p:null);
-    return {name:a,list,D:Dn,T,p:T?Dn/T:null,s:st(T?Dn/T:null),weeks}});
-  const overallWeeks=[];for(let w=1;w<=N;w++)overallWeeks.push(logged[w-1]?wkMet(hs,w).p:null);
-  let Dt=0,T=0;hs.forEach(h=>{Dt+=h.D;T+=h.T});
-  return {N,cw,lw,wl,logged,hs,areas,overallWeeks,D:Dt,T,p:T?Dt/T:null,cur:cw?wkMet(hs,cw).p:null,t,wkMet};
+    return {name:a,list,D:Dn,T,p:T?Dn/T:null,s:st(T?Dn/T:null),C:Cc,CT,cp:CT?Cc/CT:null,weeks}});
+  const overallWeeks=[],overallChecks=[];for(let w=1;w<=N;w++){overallWeeks.push(logged[w-1]?wkMet(hs,w).p:null);overallChecks.push(logged[w-1]?wkChecks(hs,w).p:null)}
+  let Dt=0,T=0,Ct=0,CTt=0;hs.forEach(h=>{Dt+=h.D;T+=h.T;Ct+=h.C;CTt+=h.CT});
+  return {N,cw,lw,wl,logged,hs,areas,overallWeeks,overallChecks,D:Dt,T,p:T?Dt/T:null,C:Ct,CT:CTt,cp:CTt?Ct/CTt:null,cur:cw?wkMet(hs,cw).p:null,t,wkMet};
 }
 
 /* ---------- not-done marks and Pomodoros ---------- */
@@ -958,8 +968,8 @@ function gstat(g,M){const G=D.goals,log=G.log||{},wk=Object.keys(log).map(Number
     if(g.kind==="rating"){p=Math.max(0,Math.min(1,cur/tgt));s=reached?"ok":cur>=tgt-2?"warn":"bad"}
     else{if(reached)p=1;else if(base!=null&&tgt!==base)p=Math.max(0,Math.min(1,(cur-base)/(tgt-base)));else p=0;
       s=reached||p>=exp-.1?"ok":p>=exp-.3?"warn":"bad"}}
-  const hl=M.hs.filter(h=>(g.habits||[]).indexOf(h.id)>=0);let Dn=0,T=0;hl.forEach(h=>{Dn+=h.D;T+=h.T});const hp=T?Dn/T:null;
-  return {cur,curW,lead,leadW,base,tgt,exp,p,s,reached,hl,hp,hs:st(hp)}}
+  const hl=M.hs.filter(h=>(g.habits||[]).indexOf(h.id)>=0);let Dn=0,T=0,Cc=0,CT=0;hl.forEach(h=>{Dn+=h.D;T+=h.T;Cc+=h.C;CT+=h.CT});const hp=T?Dn/T:null,hc=CT?Cc/CT:null;
+  return {cur,curW,lead,leadW,base,tgt,exp,p,s,reached,hl,hp,hc,hs:st(hp),hcs:st(hc)}}
 function insight(g,x){if(x.cur==null)return "Log your first number in the Sunday review to start tracking this goal.";
   if(x.reached)return "Target reached. Decide whether to raise it or hold it steady.";
   if(x.s==="ok")return "On pace. Keep the linked habits steady.";
@@ -972,8 +982,9 @@ function goalCard(g,M){const x=gstat(g,M),ed=S.gEdit===g.id;
   h+='<div class="note">'+(g.kind==="rating"?(x.curW?"Week "+x.curW+" rating":"Rate it each Sunday"):"Started at "+fv(g,x.base)+(x.curW?" · last updated week "+x.curW:""))+'</div>';
   h+='<div class="gtrack"><i style="width:'+Math.round((x.p||0)*100)+'%;background:var(--'+GCOL[x.s]+')"></i>'+(g.kind!=="rating"?'<span class="pace" style="left:calc('+Math.round(x.exp*100)+'% - 1px)" title="Steady pace to the deadline"></span>':'')+'</div>';
   if(g.lead)h+='<div class="note" style="margin-top:8px"><b>'+esc(g.lead.name)+':</b> '+(x.lead==null?"not logged yet":x.lead+" in week "+x.leadW)+' · target '+esc(g.lead.target==null?"–":g.lead.target)+' per week</div>';
+  {const cw=M.cw||M.N,cv=((D.goals.log||{})[String(cw)]||{})[g.id];h+='<div class="row gq"><label class="cap" for="gq-'+esc(g.id)+'">'+(g.kind==="rating"?"This week’s rating":"Number now")+' · week '+cw+'</label><input class="inp" id="gq-'+esc(g.id)+'" type="number" step="any" inputmode="decimal" data-gq="'+esc(g.id)+'" value="'+esc(cv==null?"":cv)+'" placeholder="'+esc(g.unit||"")+'" style="width:110px"></div>'}
   h+='</div><div class="ins">'+esc(insight(g,x))+'</div>';
-  h+='<div><div class="row"><h3>Linked habits</h3><span class="spacer"></span><span class="pill s-'+x.hs+'">'+pct(x.hp)+' '+esc(qShort())+'</span></div><div class="glist">'+(x.hl.length?x.hl.map(hb=>'<div class="gh"><span><b>'+esc(hb.name)+'</b> <span class="muted" style="font-size:12px">'+hb.cur+'/'+hb.std+' this week</span></span><span class="pill s-'+hb.s+'">'+pct(hb.p)+'</span><input class="inp" type="text" data-it="'+esc(hb.id)+'" value="'+esc((D.goals.ifthen||{})[hb.id]||"")+'" placeholder="If-then plan: If [time or cue], then I [habit]" aria-label="If-then plan for '+esc(hb.name)+'"></div>').join(""):'<p class="note">No habits linked yet. Tap Edit goal to link some.</p>')+'</div></div>';
+  h+='<div><div class="row"><h3>Linked habits</h3><span class="spacer"></span><span class="pill s-'+x.hcs+'" title="Share of checks">'+pct(x.hc)+' checks</span><span class="pill s-'+x.hs+'" title="Habit-weeks with the standard met">'+pct(x.hp)+' weeks met</span></div><div class="glist">'+(x.hl.length?x.hl.map(hb=>'<div class="gh"><span><b>'+esc(hb.name)+'</b> <span class="muted" style="font-size:12px">'+hb.cur+'/'+hb.std+' this week</span></span><span class="pill s-'+hb.s+'" title="Checks · weeks met">'+pct(hb.cp)+' · '+pct(hb.p)+'</span><input class="inp" type="text" data-it="'+esc(hb.id)+'" value="'+esc((D.goals.ifthen||{})[hb.id]||"")+'" placeholder="If-then plan: If [time or cue], then I [habit]" aria-label="If-then plan for '+esc(hb.name)+'"></div>').join(""):'<p class="note">No habits linked yet. Tap Edit goal to link some.</p>')+'</div></div>';
   h+='<details data-gd="'+esc(g.id)+'"'+(S.gOpen[g.id]?" open":"")+'><summary>WOOP plan</summary><div class="woop">'+[["wish","Wish","What you want"],["outcome","Outcome","How it will feel and what it changes"],["obstacle","Obstacle","The inner obstacle most likely to stop you"],["plan","Plan","If [the obstacle shows up], then I will…"]].map(([k,l,ph])=>'<div class="fld"><label for="gw-'+esc(g.id)+'-'+k+'">'+l+'</label><textarea id="gw-'+esc(g.id)+'-'+k+'" data-gw="'+k+'" data-g="'+esc(g.id)+'" placeholder="'+ph+'">'+esc(g[k]||"")+'</textarea></div>').join("")+'</div></details>';
   if(ed)h+=editForm(g);
   h+='<div class="row">'+(ed?(S.confirm==="gdel"+g.id?'<button class="btn danger sm" type="button" data-act="gdel" data-g="'+esc(g.id)+'">Delete goal</button><button class="btn sm" type="button" data-act="cancel">Cancel</button>':'<button class="btn sm" type="button" data-act="gaskdel" data-g="'+esc(g.id)+'">Delete</button>'):'')+'<span class="spacer"></span><button class="btn'+(ed?' primary':'')+'" type="button" data-act="gedit" data-g="'+esc(g.id)+'">'+(ed?"Done editing":"Edit goal")+'</button></div>';
@@ -998,8 +1009,8 @@ function vGoals(M){const G=D.goals;if(!G)return '<div class="empty">Loading your
   h+='<div class="row"><span class="note">Deadline</span><input class="inp" type="date" data-gdl="1" value="'+esc(G.deadline||"")+'" aria-label="Goal deadline" style="width:auto"></div>';
   return h}
 function goalsCard(M){if(!D.goals||!D.goals.list.length)return "";
-  return '<section class="card flat"><div class="hsec-h" style="padding:0"><h2>Goals</h2><span class="spacer"></span><button class="btn sm" type="button" data-nav="goals">Open goals</button></div><p class="note">Goal status, then the score of the habits that drive it.</p>'+D.goals.list.map(g=>{const x=gstat(g,M);
-    return '<div class="gsum"><span><b>'+esc(g.name)+'</b><span class="note" style="display:block">'+fv(g,x.cur)+' / '+fv(g,x.tgt)+' '+esc(g.unit||"")+'</span></span><span class="gtrack sm"><i style="width:'+Math.round((x.p||0)*100)+'%;background:var(--'+GCOL[x.s]+')"></i></span><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="pill s-'+x.s+'">'+(x.reached?"Reached":GL[x.s])+'</span><span class="pill s-'+x.hs+'" title="Linked habits">'+pct(x.hp)+'</span></span></div>'}).join("")+'</section>'}
+  return '<section class="card flat"><div class="hsec-h" style="padding:0"><h2>Goals</h2><span class="spacer"></span><button class="btn sm" type="button" data-nav="goals">Open goals</button></div><p class="note">Goal status, then the habits that drive it: share of checks · share of weeks the standard was met.</p>'+D.goals.list.map(g=>{const x=gstat(g,M);
+    return '<div class="gsum"><span><b>'+esc(g.name)+'</b><span class="note" style="display:block">'+fv(g,x.cur)+' / '+fv(g,x.tgt)+' '+esc(g.unit||"")+'</span></span><span class="gtrack sm"><i style="width:'+Math.round((x.p||0)*100)+'%;background:var(--'+GCOL[x.s]+')"></i></span><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="pill s-'+x.s+'">'+(x.reached?"Reached":GL[x.s])+'</span><span class="pill s-'+x.hcs+'" title="Linked habits: checks · weeks met">'+pct(x.hc)+' · '+pct(x.hp)+'</span></span></div>'}).join("")+'</section>'}
 function goalCheckin(w){if(!D.goals||!D.goals.list.length)return "";const L=(D.goals.log||{})[String(w)]||{},v=k=>L[k]==null?"":L[k];
   return '<section class="card"><h2>Goal check-in</h2><p class="note">Where each goal stands at the end of week '+w+'. Use running totals for clients, savings and books, and this week’s score for 1–10 ratings. Leave blank if you didn’t measure.</p><div class="qs" style="margin-top:12px">'+D.goals.list.map(g=>'<div class="q"><label for="gl-'+esc(g.id)+'">'+esc(g.name)+' <span class="muted" style="font-weight:500">· '+esc(g.unit||"")+', target '+fv(g,gnum(g.target))+'</span></label><input class="inp" type="number" step="any" inputmode="decimal" id="gl-'+esc(g.id)+'" data-gl="'+esc(g.id)+'" value="'+esc(v(g.id))+'">'+(g.lead?'<label for="gl-'+esc(g.id)+'-lead" style="margin-top:8px">'+esc(g.lead.name)+' this week <span class="muted" style="font-weight:500">· target '+esc(g.lead.target==null?"–":g.lead.target)+'</span></label><input class="inp" type="number" step="any" inputmode="decimal" id="gl-'+esc(g.id)+'-lead" data-gl="'+esc(g.id)+'_lead" value="'+esc(v(g.id+"_lead"))+'">':'')+'</div>').join("")+'</div></section>'}
 
@@ -1015,13 +1026,14 @@ window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v
 
 /* ---------- render ---------- */
 function focusKey(){const a=document.activeElement;if(!a||a===document.body||!a.closest||!a.closest("main"))return null;
-  const sel=["data-act","data-k","data-h","data-d","data-nv","data-hf","data-of","data-rem","data-clink","data-tone","data-cweek","data-i","data-af","data-rv","data-ge","data-gw","data-gl","data-it","id"].filter(n=>a.hasAttribute(n)).map(n=>"["+n+'="'+CSS.escape(a.getAttribute(n))+'"]').join("");
+  const sel=["data-act","data-k","data-h","data-d","data-nv","data-hf","data-of","data-rem","data-clink","data-tone","data-cweek","data-i","data-af","data-rv","data-ge","data-gw","data-gl","data-gq","data-it","id"].filter(n=>a.hasAttribute(n)).map(n=>"["+n+'="'+CSS.escape(a.getAttribute(n))+'"]').join("");
   return sel?{sel,tag:a.tagName.toLowerCase()}:null}
 function render(){const fk=focusKey();renderInner();if(fk){const el=document.querySelector("main "+fk.tag+fk.sel);if(el&&!el.disabled&&document.activeElement!==el)el.focus({preventScroll:true})}}
 const qShort=()=>(cfg().label||"Q4 2026").split(" ")[0];
 function renderInner(){nav();const m=document.getElementById("main");const br=document.querySelector(".brand");if(br&&br.firstChild)br.firstChild.nodeValue=VIEW?"Habits":qShort()+" Habits";
   if(!cfg().habits.length&&S.view!=="setup"){m.innerHTML=(SY.conflict?conflictBanner():"")+'<div class="card state"><h2>No habits yet</h2><p class="muted">Add your first habit in Settings.</p><p style="margin-top:12px"><button class="btn primary" type="button" data-nav="setup">Open Settings</button></p></div>';return}
-  ensureHist();ensureGoals();const M=model();
+  ensureHist();ensureGoals();const M=model();autoShare(M);
+  if(S.day&&S.day>M.t&&inRange(M.t))S.day=null;
   if(!S.day){const t=M.t;S.day=inRange(t)?t:(t<start()?start():we(W()))}
   if(!S.week)S.week=M.cw||W();
   if(!S.revWeek){let w=M.cw||W();if(M.t<we(w))w=Math.max(1,w-1);S.revWeek=w}
@@ -1097,14 +1109,16 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   let h='<div class="scr-head"><div class="grow"><div class="eyebrow2">'+esc(fmt(d,{weekday:"long"}))+(evening?" · evening":"")+' · Week '+w+' of '+M.N+'</div><h1 class="big">'+esc(fmt(d,{month:"long",day:"numeric"}))+'</h1></div>'+
    (isT?'':'<button class="btn" type="button" data-act="today">Today</button>')+'</div>';
   h+='<section class="hero" aria-label="At a glance"><div class="ringbox">'+ring(n,tot,92,9,n+" of "+tot+" habits ticked "+(isT?"today":"that day"))+'<div class="ringtxt"><b>'+n+'</b><span>of '+tot+(isT?' today':'')+'</span></div></div>'+
-   '<div class="herotxt"><div class="eyebrow">'+(M.cw?'This week':esc(cfg().label))+'</div><div class="herobig"><b>'+C.met+'</b> of '+C.n+' standards met</div><div class="chips"><span class="tag t-plan">'+C.pace+' on pace</span>'+(C.risk?'<span class="tag t-risk">'+C.risk+' at risk</span>':'')+'</div></div></section>';
+   '<div class="herotxt"><div class="eyebrow">'+(M.cw?'This week':esc(cfg().label))+'</div><div class="herobig"><b>'+C.met+'</b> of '+C.n+' standards met</div><div class="chips">'+(M.cw?'<span class="tag t-quiet">Checks '+pct(wkChecks(M.hs,M.cw).p)+'</span>':'')+'<span class="tag t-plan">'+C.pace+' on pace</span>'+(C.risk?'<span class="tag t-risk">'+C.risk+' at risk</span>':'')+'</div></div></section>';
   if(S.timer&&isT){const th=hab(S.timer.id);if(th)h+='<div class="tbar" role="status"><b>'+(S.timer.phase==="rest"?"Break":"Pomodoro")+'</b><span class="grow">'+esc(th.name)+'</span><span class="ptime">'+fmtT(S.timer.end-Date.now())+'</span><button class="btn sm" type="button" data-act="ptimer" data-h="'+esc(th.id)+'" data-k="'+esc(S.timer.k)+'">'+(S.timer.phase==="rest"?"Skip break":"Stop")+'</button></div>'}
   if(isT&&!VIEW&&SY.nudge&&SY.nudge>(cfg().nudgeSeen||""))h+='<div class="nudge" role="status"><span><b>Check-in nudge.</b> Someone you share your weekly report with is checking in ('+esc(new Date(SY.nudge).toLocaleString("en-CA",{weekday:"short",hour:"numeric",minute:"2-digit"}))+'). How’s the week going?</span><button class="btn sm primary" type="button" data-act="nudgeok">Got it</button></div>';
-  h+='<nav class="daystrip" aria-label="Choose a day">';for(let i=0;i<7;i++){const dt=add(ws(w),i),dk=key(dt),cnt=M.hs.filter(x=>has(dk,x.id)).length,sel=dk===k,isTd=dk===key(M.t),ok=inRange(dt);
+  h+='<nav class="daystrip" aria-label="Choose a day">';for(let i=0;i<7;i++){const dt=add(ws(w),i),dk=key(dt),cnt=M.hs.filter(x=>has(dk,x.id)).length,sel=dk===k,isTd=dk===key(M.t),ok=inRange(dt)&&dt<=M.t;
     h+='<button type="button" class="dayb'+(sel?" sel":"")+(isTd?" istoday":"")+(dt>M.t?" fut":"")+'" data-act="pickday" data-k="'+dk+'" aria-label="'+esc(fmt(dt,{weekday:"long",month:"long",day:"numeric"}))+'"'+(sel?' aria-current="date"':'')+(ok?'':' disabled')+'><span class="dl">'+DN[i]+'</span><span class="dn2">'+dt.getDate()+'</span><span class="db"><i style="width:'+Math.round(cnt/(tot||1)*100)+'%"></i></span></button>'}
   h+='</nav>';
-  if(w===M.cw&&M.hs.some(flexible)&&!Object.keys(D.plans[w]||{}).length&&!(D.focus[w]||[]).length)h+='<div class="nudge"><span>Plan week '+w+': pick up to 3 focus habits and the days for flexible ones.</span><button class="btn sm primary" type="button" data-act="openplan" data-w="'+w+'">Plan week '+w+'</button></div>';
-  if(isT&&!syncOn()&&!VIEW){const last=Math.max(UI.lastBackup||0,UI.lastNag||0);if(Date.now()-last>7*DAY)h+='<div class="nudge warnb" role="status"><span><b>Your history is only on this phone.</b> Back it up or turn on online storage.</span><button class="btn sm primary" type="button" data-act="export">Back up</button><button class="btn sm" type="button" data-nav="setup">Online storage</button><button class="linkbtn" type="button" data-act="nagLater">Later</button></div>'}
+  const wel=isT&&!VIEW&&!syncOn()&&!UI.welcomed&&!Object.keys(D.ticks).length&&!Object.keys(D.vals).length;
+  if(wel)h+='<section class="card welcome"><h2>Welcome</h2><p class="note" style="margin:4px 0 10px">Is this your first device, or do you already track habits on another phone or computer?</p><div class="row"><button class="btn primary" type="button" data-act="wlink">Link to my other device</button><button class="btn" type="button" data-act="wrestore">Restore a backup</button><button class="btn" type="button" data-act="wfresh">Start fresh here</button></div></section>';
+  if(!wel&&w===M.cw&&M.hs.some(flexible)&&!Object.keys(D.plans[w]||{}).length&&!(D.focus[w]||[]).length)h+='<div class="nudge"><span>Plan week '+w+': pick up to 3 focus habits and the days for flexible ones.</span><button class="btn sm primary" type="button" data-act="openplan" data-w="'+w+'">Plan week '+w+'</button></div>';
+  if(!wel&&isT&&!syncOn()&&!VIEW){const last=Math.max(UI.lastBackup||0,UI.lastNag||0);if(Date.now()-last>7*DAY)h+='<div class="nudge warnb" role="status"><span><b>Your history is only on this phone.</b> Back it up or turn on online storage.</span><button class="btn sm primary" type="button" data-act="export">Back up</button><button class="btn sm" type="button" data-nav="setup">Online storage</button><button class="linkbtn" type="button" data-act="nagLater">Later</button></div>'}
   if(isT&&!VIEW){const y=add(d,-1),yk=key(y);if(inRange(y)&&UI.ydone!==yk){if(!S.ylist||S.ylist.k!==yk)S.ylist={k:yk,ids:M.hs.filter(x=>x.std>0&&!isNum(x)&&!has(yk,x.id)).map(x=>x.id)};
     const yl=S.ylist.ids.map(id=>M.hs.find(x=>x.id===id)).filter(Boolean);
     if(yl.length)h+='<section class="ycard" aria-label="Yesterday"><div class="ych"><b>Yesterday</b><span>'+yl.filter(x=>!has(yk,x.id)).length+' not ticked. Did you do any?</span><span class="spacer"></span><button class="linkbtn" type="button" data-act="ydone" data-k="'+yk+'">All logged</button></div><div class="ychips">'+yl.map(x=>'<button type="button" class="chip" data-act="tick" data-k="'+yk+'" data-h="'+esc(x.id)+'" aria-pressed="'+has(yk,x.id)+'">'+esc(x.name)+'</button>').join("")+'</div></section>'}}
@@ -1152,19 +1166,20 @@ function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.pus
    '<div class="grow center"><h1 class="mid">Week '+w+'</h1><div class="sub">'+md(ws(w))+' – '+md(we(w))+' · '+(di?'day '+di+' of 7':we(w)<M.t?'finished':'upcoming')+'</div>'+(w!==M.cw&&M.cw?'<button class="linkbtn" type="button" data-act="thisweek">Back to this week</button>':'')+'</div>'+
    '<button class="iconbtn lg" type="button" data-act="week" data-d="1" aria-label="Next week"'+(w>=M.N?" disabled":"")+'><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>';
   let best=0,a=0,b=0;M.hs.forEach(x=>{const sd=x.sw[w-1];if(!(sd>0))return;const dn=x.done[w-1];a+=Math.min(dn,sd);b+=sd;let open=0;for(let i=0;i<7;i++){const dt=add(ws(w),i);if(dt>=M.t&&!has(key(dt),x.id))open++}best+=Math.min(sd,dn+open)});
-  h+='<div class="tiles2"><div class="tile"><span>Standards met</span><b>'+nDone+'<small> / '+nStd+'</small></b></div><div class="tile"><span>'+(di?'Score so far':'Week score')+'</span><b>'+pct(b?a/b:null)+'</b>'+(di?'<small class="best">best case '+pct(b?best/b:null)+'</small>':'')+'</div></div>';
+  h+='<div class="tiles2"><div class="tile"><span>Standards met</span><b>'+nDone+'<small> / '+nStd+'</small></b></div><div class="tile"><span>'+(di?'Checks so far':'Checks')+'</span><b>'+pct(b?a/b:null)+'</b>'+(di?'<small class="best">best case '+pct(b?best/b:null)+'</small>':'')+'</div></div>';
   h+='<div class="toolrow">'+(canPlan?'<div class="seg" role="group" aria-label="Week mode"><button type="button" data-act="wmode" data-m="track" aria-pressed="'+!plan+'">Track</button><button type="button" data-act="wmode" data-m="plan" aria-pressed="'+plan+'">Plan</button></div>':'')+'<span class="spacer"></span>'+
    (plan?(D.plans[w-1]&&Object.keys(D.plans[w-1]).length?'<button type="button" class="chip" data-act="copyplan" data-w="'+w+'">Copy last week</button>':''):'<button type="button" class="chip" data-act="hidedone" aria-pressed="'+hide+'">'+(hide?"Showing unmet · "+nDone+" hidden":"Hide met")+'</button>')+'</div>';
   if(plan){const fx=D.focus[w]||[];
     h+='<section class="card flat"><div class="hsec-h" style="padding:0"><h2><span class="star" aria-hidden="true">★</span> Focus habits</h2><span>'+fx.length+' of 3 chosen</span></div><p class="hint" style="margin:6px 0 10px">Pick up to 3 habits to put first all week. They sit at the top of Today, and your coach plans around them.</p><div class="ychips">'+
       M.hs.filter(x=>x.std>0).map(x=>'<button type="button" class="chip" data-act="focus" data-w="'+w+'" data-h="'+esc(x.id)+'" aria-pressed="'+(fx.indexOf(x.id)>=0)+'"'+(fx.indexOf(x.id)<0&&fx.length>=3?' disabled':'')+'>'+esc(x.name)+'</button>').join("")+'</div></section>';
     h+='<p class="hint">Tap the days you’ll do each flexible habit. Planned days show on Today and as dashed circles here.</p><section class="card flat">'+planRows(M,w)+'</section>';return h}
+  h+=shareWrap(M);
   if(hide&&nDone&&nDone===M.hs.length)return h+'<div class="empty"><b>Everything met in week '+w+'.</b> Tap “Showing unmet” to see them.</div>';
   const word={"d-done":"done","d-x":"marked not done","d-miss":"missed","d-today":"today","d-todayplan":"planned today","d-plan":"planned","d-future":"not yet"};
   h+='<section class="wgrid" aria-label="Week '+w+' grid"><div class="wg-row wg-h"><span class="wg-n">Habit</span>'+days.map((dt,i)=>'<span class="wg-d'+(key(dt)===t?" td":"")+'"><small>'+DN[i]+'</small>'+dt.getDate()+'</span>').join("")+'<span class="wg-c">Done</span></div>';
   M.areas.forEach(ar=>{const shown=hide?ar.list.filter(x=>!isDone(x)):ar.list;if(!shown.length)return;const hid=ar.list.length-shown.length;
-    h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+(c=>c.b?c.a+'/'+c.b+' · '+pct(c.p):'–')(wkChecks(ar.list,w))+'</span></div>';
-    shown.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt);
+    h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+(c=>c.b?c.a+'/'+c.b+' checks · '+pct(c.p):'–')(wkChecks(ar.list,w))+(m=>m.b?' · '+m.a+'/'+m.b+' met':'')(M.wkMet(ar.list,w))+'</span></div>';
+    shown.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt)||dt>M.t;
         const xm=!on&&isMiss(k,x.id),st=on?"d-done":xm?"d-x":k===t?(pl?"d-todayplan":"d-today"):dt<M.t?"d-miss":pl?"d-plan":"d-future";
         const lab=esc(x.name)+', '+esc(fmt(dt,{weekday:"long",month:"short",day:"numeric"}))+': '+word[st];
         if(isNum(x))return '<span class="wg-cell'+(k===t?" td":"")+'"><input class="cell numcell '+st+(on?" met":"")+(pl&&!on?" plan":"")+'" type="number" inputmode="decimal" min="0" step="any" data-nv="1" data-k="'+k+'" data-h="'+esc(x.id)+'" value="'+nf(val(k,x.id))+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'></span>';
@@ -1179,15 +1194,18 @@ function chart(M){const N=M.N,Wd=360,Hh=170,L=34,R=14,T=18,B=24,iw=Wd-L-R,ih=Hh-
   g+='<line x1="'+L+'" x2="'+(Wd-R)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="var(--line)"/><line x1="'+L+'" x2="'+(Wd-R)+'" y1="'+y(cfg().on)+'" y2="'+y(cfg().on)+'" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".55"/>';
   g+='<text x="'+(L-6)+'" y="'+(y(cfg().on)+4)+'" text-anchor="end">'+Math.round(cfg().on*100)+'%</text><text x="'+(L-6)+'" y="'+(y(0)+4)+'" text-anchor="end">0</text>';
   for(let w=1;w<=N;w+=2)g+='<text x="'+x(w)+'" y="'+(Hh-6)+'" text-anchor="middle">W'+w+'</text>';
-  const ps=[];M.overallWeeks.forEach((v,i)=>{if(v!=null)ps.push([x(i+1),y(v),v])});
+  const pm=[];M.overallWeeks.forEach((v,i)=>{if(v!=null)pm.push([x(i+1),y(v)])});
+  if(pm.length>1)g+='<polyline points="'+pm.map(p=>p[0]+","+p[1]).join(" ")+'" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>';
+  pm.forEach(p=>{g+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.5" fill="var(--muted)"/>'});
+  const ps=[];M.overallChecks.forEach((v,i)=>{if(v!=null)ps.push([x(i+1),y(v),v])});
   if(ps.length>1)g+='<polyline points="'+ps.map(p=>p[0]+","+p[1]).join(" ")+'" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>';
   ps.forEach((p,i)=>{const last=i===ps.length-1;g+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(last?6:4)+'" fill="'+(last?"var(--today)":"var(--accent)")+'"'+(last?' stroke="var(--panel)" stroke-width="2"':'')+'/>';if(last)g+='<text x="'+p[0]+'" y="'+(p[1]-12)+'" text-anchor="middle" class="lbl">'+Math.round(p[2]*100)+'%</text>'});
   if(!ps.length)g+='<text x="'+(Wd/2)+'" y="'+(Hh/2)+'" text-anchor="middle">Your first finished week will appear here.</text>';
   return g+'</svg>'}
 function heatColor(v){if(v==null)return "var(--line)";if(v>=1)return "var(--h4)";if(v>=.75)return "var(--h3)";if(v>=.5)return "var(--h2)";if(v>0)return "var(--h1)";return "var(--line)"}
 function kpi(k,v,d,sm){return '<div class="kpi"><div class="k">'+esc(k)+'</div><div class="v'+(sm?" sm":"")+'">'+v+'</div><div class="d">'+esc(d||"")+'</div></div>'}
-function scoreboard(M){return '<p class="note" style="padding:0 16px 8px">A week counts as met only when the habit hit that week’s standard. Bonus days are extra days above standard; they don’t cover misses.</p><div class="scroll"><table class="score"><thead><tr><th>Habit</th><th>Std</th><th>Weeks met</th><th>Weeks</th><th>% met</th><th>Streak</th><th>Best</th><th>Bonus days</th><th style="text-align:center">Status</th></tr></thead><tbody>'+
-   M.hs.map(x=>'<tr><td><b style="font-weight:600">'+esc(x.name)+'</b><span class="ar">'+esc(x.area)+(isNum(x)?" · "+esc(unitTxt(x))+"/day":"")+'</span></td><td>'+x.std+'</td><td>'+x.D+'</td><td>'+x.T+'</td><td class="t-'+x.s+'" style="font-weight:700">'+pct(x.p)+'</td><td>'+(x.streak==null?"–":x.streak)+'</td><td>'+(x.best==null?"–":x.best)+'</td><td>'+(x.bonus?"+"+x.bonus:"–")+'</td><td class="st"><span class="pill s-'+x.s+'">'+(x.std?SL[x.s]:"No target")+'</span></td></tr>').join("")+'</tbody></table></div>'}
+function scoreboard(M){return '<p class="note" style="padding:0 16px 8px">Checks: every check counts toward the weekly standard (extra days don’t add more). Weeks met: a week counts only when the standard was fully hit. Bonus days are checks above the standard.</p><div class="scroll"><table class="score"><thead><tr><th>Habit</th><th>Std</th><th>Checks</th><th>% checks</th><th>Weeks met</th><th>Weeks</th><th>% weeks met</th><th>Streak</th><th>Best</th><th>Bonus days</th><th style="text-align:center">Status</th></tr></thead><tbody>'+
+   M.hs.map(x=>'<tr><td><b style="font-weight:600">'+esc(x.name)+'</b><span class="ar">'+esc(x.area)+(isNum(x)?" · "+esc(unitTxt(x))+"/day":"")+'</span></td><td>'+x.std+'</td><td>'+x.C+'/'+x.CT+'</td><td style="font-weight:700">'+pct(x.cp)+'</td><td>'+x.D+'</td><td>'+x.T+'</td><td class="t-'+x.s+'" style="font-weight:700">'+pct(x.p)+'</td><td>'+(x.streak==null?"–":x.streak)+'</td><td>'+(x.best==null?"–":x.best)+'</td><td>'+(x.bonus?"+"+x.bonus:"–")+'</td><td class="st"><span class="pill s-'+x.s+'">'+(x.std?SL[x.s]:"No target")+'</span></td></tr>').join("")+'</tbody></table></div>'}
 function vDash(M){const tab=S.ptab||"week";
   let h='<div class="scr-head"><h1 class="big grow">Progress</h1><div class="seg" role="group" aria-label="Time range"><button type="button" data-act="ptab" data-m="week" aria-pressed="'+(tab==="week")+'">This week</button><button type="button" data-act="ptab" data-m="q4" aria-pressed="'+(tab==="q4")+'">'+esc(qShort())+'</button></div></div>';
   if(tab==="week"){
@@ -1199,20 +1217,22 @@ function vDash(M){const tab=S.ptab||"week";
     const per=[];for(let i=0;i<7;i++){const dt=add(ws(w),i);per.push(M.hs.filter(x=>has(key(dt),x.id)).length)}
     h+='<section class="dark" aria-label="This week"><div class="eyebrow inv">Week '+w+' · day '+el+' of 7</div><div class="darkbig"><b>'+C.met+'</b><span>of '+C.n+' standards met</span></div>'+
      '<div class="bars" role="img" aria-label="Habits ticked per day this week: '+per.map((c,i)=>DAYN[i]+" "+c).join(", ")+'">'+per.map((c,i)=>{const dt=add(ws(w),i),fut=dt>M.t,isTd=i===di;return '<span class="bcol"><i class="'+(fut?"fut":isTd?"tdy":"")+'" style="height:'+(fut?6:Math.max(6,Math.round(c/(M.hs.length||1)*64)))+'px"></i><small>'+DN[i]+'</small></span>'}).join("")+'</div>'+
-     '<div class="trio"><div><b>'+pct(b?a/b:null)+'</b><span>score so far</span></div><div><b class="gold">'+(el>=3?pct(b?rate/b:null):"–")+'</b><span>'+(el>=3?"at this pace":"pace from day 3")+'</span></div><div><b>'+pct(b?best/b:null)+'</b><span>best case</span></div></div></section>';
+     '<div class="trio"><div><b>'+pct(b?a/b:null)+'</b><span>checks so far</span></div><div><b class="gold">'+(el>=3?pct(b?rate/b:null):"–")+'</b><span>'+(el>=3?"at this pace":"pace from day 3")+'</span></div><div><b>'+pct(b?best/b:null)+'</b><span>best case</span></div></div></section>';
     const att=rows.filter(r=>r.rank<=1),showAll=!!S.allPace,list=showAll?rows:att.slice(0,4);
     h+='<section class="hsec"><div class="hsec-h"><h2>'+(showAll?"All habits this week":"Needs attention")+'</h2><span>'+(showAll?"":att.length?att.length+" habit"+(att.length===1?"":"s"):"nothing at risk")+'</span><span class="spacer"></span><button class="linkbtn" type="button" data-act="allpace">'+(showAll?"Show fewer":"All "+rows.length+" habits")+'</button></div>'+
      (list.length?'<div class="hlist">'+list.map(r=>'<div class="prog"><span class="pg-n">'+esc(r.x.name)+'</span><span class="pg-c">'+r.dn+'/'+r.x.std+'</span><span class="pg-b"><i style="width:'+Math.max(3,Math.min(100,Math.round(r.dn/r.x.std*100)))+'%" class="r'+r.rank+'"></i></span><span class="pg-t r'+r.rank+'">'+esc(r.rank===3?"Met":r.st.s==="out"?"Out of reach":r.x.std===7?"Daily":r.st.need+" in "+r.st.avail+" day"+(r.st.avail===1?"":"s"))+'</span></div>').join("")+'</div>':'<div class="empty">Every habit is on pace. Nice.</div>')+'</section>';
     const sk=stuckList(M);
     if(sk.length)h+='<section class="hsec"><div class="hsec-h"><h2>Make it easier</h2><span>'+sk.length+' suggestion'+(sk.length===1?"":"s")+'</span></div><div class="hlist">'+sk.slice(0,S.allStuck?99:3).map(r=>'<div class="stk2"><div class="grow"><b>'+esc(r.h.name)+'</b><span>'+r.last[0]+' then '+r.last[1]+' of '+r.h.std+' in the last two weeks</span></div><button class="btn sm soft" type="button" data-act="resize" data-h="'+esc(r.h.id)+'" data-n="'+r.sug+'">Try '+r.sug+' a week</button><button class="linkbtn" type="button" data-act="keepstd" data-h="'+esc(r.h.id)+'" aria-label="Keep '+esc(r.h.name)+' at '+r.h.std+'">Keep</button></div>').join("")+'</div>'+(sk.length>3&&!S.allStuck?'<button class="linkbtn" type="button" data-act="allstuck">Show '+(sk.length-3)+' more</button>':'')+'</section>';
     h+=pomoCard(M);
-    h+='<section class="hsec"><div class="hsec-h"><h2>Life areas</h2><span>this week</span></div><div class="hlist pad">'+M.areas.map(ar=>{const v=wkChecks(ar.list,w).p;return '<div class="arow2"><span>'+esc(ar.name)+'</span><span class="track"><i style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></i></span><b>'+pct(v)+'</b></div>'}).join("")+'</div></section>';
+    h+='<section class="hsec"><div class="hsec-h"><h2>Life areas</h2><span>checks this week · standards met</span></div><div class="hlist pad">'+M.areas.map(ar=>{const v=wkChecks(ar.list,w).p,m=M.wkMet(ar.list,w);return '<div class="arow2"><span>'+esc(ar.name)+'<small class="am">'+m.a+'/'+m.b+' met</small></span><span class="track"><i style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></i></span><b>'+pct(v)+'</b></div>'}).join("")+'</div></section>';
     return h}
   const sorted=M.areas.filter(a=>a.p!=null).slice().sort((p,q)=>q.p-p.p);
   const left=Math.max(0,Math.round((we(M.N)-M.t)/DAY));
-  h+='<section class="tiles4"><div class="tile"><span>'+esc(qShort())+' standards met</span><b>'+pct(M.p)+'</b><small>'+M.D+' of '+M.T+' across '+M.wl+' finished week'+(M.wl===1?"":"s")+'</small></div><div class="tile"><span>Days left</span><b>'+left+'</b><small>until '+md(we(M.N))+'</small></div>'+
-   '<div class="tile"><span>Strongest area</span><b class="sm">'+esc(sorted[0]?sorted[0].name:"–")+'</b><small>'+(sorted[0]?pct(sorted[0].p)+" of standard":"")+'</small></div><div class="tile"><span>Weakest area</span><b class="sm">'+esc(sorted.length?sorted[sorted.length-1].name:"–")+'</b><small class="t-bad">'+(sorted.length?pct(sorted[sorted.length-1].p)+" of standard":"")+'</small></div></section>';
-  h+='<section class="card flat chart"><div class="hsec-h"><h2>Week by week</h2><span>target '+Math.round(cfg().on*100)+'%</span></div>'+chart(M)+'</section>';
+  const both=a=>pct(a.cp)+" checks · "+pct(a.p)+" met";
+  h+='<section class="tiles4"><div class="tile"><span>'+esc(qShort())+' checks</span><b>'+pct(M.cp)+'</b><small>'+M.C+' of '+M.CT+' checks · '+left+' days left</small></div><div class="tile"><span>'+esc(qShort())+' standards met</span><b>'+pct(M.p)+'</b><small>'+M.D+' of '+M.T+' habit-weeks across '+M.wl+' finished week'+(M.wl===1?"":"s")+'</small></div>'+
+   '<div class="tile"><span>Strongest area</span><b class="sm">'+esc(sorted[0]?sorted[0].name:"–")+'</b><small>'+(sorted[0]?both(sorted[0]):"")+'</small></div><div class="tile"><span>Weakest area</span><b class="sm">'+esc(sorted.length?sorted[sorted.length-1].name:"–")+'</b><small class="t-bad">'+(sorted.length?both(sorted[sorted.length-1]):"")+'</small></div></section>';
+  h+='<section class="card flat"><div class="hsec-h" style="padding:0"><h2>Life areas</h2><span>'+esc(qShort())+' so far</span></div><div class="q4areas">'+M.areas.map(a=>'<div class="arow2"><span>'+esc(a.name)+'<small class="am">'+a.D+'/'+a.T+' met · '+pct(a.p)+'</small></span><span class="track"><i style="width:'+Math.min(100,Math.round((a.cp||0)*100))+'%"></i></span><b>'+pct(a.cp)+'</b></div>').join("")+'</div><p class="note">Bar and big number: share of checks. Small text: habit-weeks where the standard was fully met.</p></section>';
+  h+='<section class="card flat chart"><div class="hsec-h"><h2>Week by week</h2><span>target '+Math.round(cfg().on*100)+'%</span></div>'+chart(M)+'<div class="legend2"><span><i class="ln"></i>Checks</span><span><i class="ln dash"></i>Standards met</span></div></section>';
   let hm='<div class="heat2" style="grid-template-columns:minmax(0,1fr) repeat('+M.N+',12px)">';
   M.hs.forEach(x=>{hm+='<span class="hl" title="'+esc(x.name)+'">'+esc(x.name)+'</span>';for(let w=1;w<=M.N;w++){const sd=x.sw[w-1],lg=M.logged[w-1]&&sd>0,v=lg?(x.done[w-1]>=sd?1:x.done[w-1]/sd):null,cur=w===M.cw;
     hm+='<span class="hc2'+(cur?" cur":"")+(lg?"":" nolog")+'" style="background:'+(lg?heatColor(v):"transparent")+'" title="'+esc(x.name)+' · week '+w+': '+x.done[w-1]+'/'+(sd==null?"not tracked":sd)+'"></span>'}});
@@ -1221,7 +1241,6 @@ function vDash(M){const tab=S.ptab||"week";
    '<div class="legend2"><span>Less</span><i class="sq" style="background:var(--line)"></i><i class="sq" style="background:var(--h1)"></i><i class="sq" style="background:var(--h2)"></i><i class="sq" style="background:var(--h3)"></i><i class="sq" style="background:var(--h4)"></i><span>Standard met</span></div></section>';
   if(S.showScore)h+='<section class="card flat" style="padding:0"><div class="hsec-h" style="padding:16px 16px 4px"><h2>Scoreboard</h2><span>'+esc(cfg().label)+' so far</span></div>'+scoreboard(M)+'</section>';
   h+=goalsCard(M);
-  h+=outcomesCard(M);
   h+=pomoCard(M);
   if(D.archive.length)h+='<section class="hsec"><div class="hsec-h"><h2>Past quarters</h2></div><div class="hlist">'+D.archive.slice().reverse().map(a=>{const hs=(a.habits||[]).filter(x=>x.p!=null).sort((p,q)=>q.p-p.p);
     return '<div class="stk2"><div class="grow"><b>'+esc(a.label)+' · '+pct(a.score)+'</b><span>'+esc(fmt(pd(a.start),{month:"short",day:"numeric"}))+' – '+esc(fmt(pd(a.end),{month:"short",day:"numeric",year:"numeric"}))+(hs.length?' · best: '+esc(hs[0].name)+' '+pct(hs[0].p)+' · lowest: '+esc(hs[hs.length-1].name)+' '+pct(hs[hs.length-1].p):'')+'</span></div></div>'}).join("")+'</div></section>';
@@ -1292,6 +1311,7 @@ const TONE_TXT={cheer:"You are a warm, upbeat, deeply encouraging habit coach. L
 const HEADS=["from your review","last week's commitments","wins","fix first","patterns","biggest lever","commitments","pace check","today's move","commitments check","this week's plan"];
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const dshort=d=>fmt(d,{weekday:"short",month:"short",day:"numeric"});
+function goalsOf(h){return D.goals?D.goals.list.filter(g=>(g.habits||[]).indexOf(h.id)>=0).map(g=>g.name):[]}
 function outcomeOf(h){return (cfg().outcomes||[]).find(o=>o.id===h.outcome)||null}
 function commitWeek(M){if(!M.cw)return null;const sun=key(M.t)===key(we(M.cw));return sun&&M.cw<M.N?M.cw+1:M.cw}
 function defaultMode(M){const wd=(M.t.getDay()+6)%7;return wd>=2&&wd<=5?"midweek":"weekly"}
@@ -1315,7 +1335,7 @@ function saveCommits(w,list){if(!w||!list.length)return false;const cur=D.commit
 
 function systemPrompt(){const tone=TONE_TXT[cfg().tone||"direct"]||TONE_TXT.direct;return [
  "You are my personal habit coach for "+cfg().label+". "+tone,
- "You know my 2026 outcomes and which habits serve each one. Always connect advice to the outcome a habit serves.",
+ "You know my goals and which habits drive each one. Always connect advice to the goal a habit serves.",
  "Use my real numbers. Look for day-of-week and sequence patterns in the daily grid. Respect my day notes: do not scold me for days marked travel, sick or rest; judge the pattern around them.",
  "You can see summaries of our past sessions: build on them, follow up on what you suggested, and change tactics on advice that has not worked instead of repeating it.",
  "When I have answered my Sunday review, my own words matter more than any number: anchor the coaching on them.",
@@ -1338,7 +1358,7 @@ function dataMsg(M,R,mode){const L=[],cw=M.cw,P=pace(M),T=targetWeek(M,R),done=w
   if(rws.length){L.push("\nMY OWN SUNDAY REVIEW. This matters more than any number below: read it first and anchor the coaching on it.");
     rws.forEach(w=>{const r=D.reviews[String(w)];L.push("Week "+w+(w===rws[0]?" (latest)":"")+":");QUESTIONS.forEach(([id,q])=>{if(r[id])L.push("- "+q+" -> "+r[id]+(id==="closer"&&r.closerWhy?" ("+r.closerWhy+")":""))});if(r.did)L.push("- Did I make the one change I planned the week before? -> "+r.did)})}
   else L.push("\nI haven't answered my Sunday review for week "+R+" yet.");
-  L.push("\nScoring: a habit counts for a week only if it hit that week's standard; extra days are bonus and never make up for a miss. Every finished week counts, even weeks I didn't log. Standard 0 = tracked with no target.");
+  L.push("\nScoring: I track two numbers. Checks = every check counts toward each habit's weekly standard, capped at the standard. Standards met = a habit counts for a week only if it hit that week's standard; extra days are bonus and never make up for a miss. Every finished week counts, even weeks I didn't log. Standard 0 = tracked with no target.");
   L.push("\nCOACHING FOCUS: week "+R+" ("+wkDates(R)+"), "+(done?"finished":"in progress, "+(Math.round((M.t-ws(R))/DAY)+1)+" of 7 days so far")+". Week "+R+" score: "+pct(wkScore(M.hs,R))+(R>1?" (week "+(R-1)+": "+pct(wkScore(M.hs,R-1))+")":"")+".");
   L.push("Week "+R+" by area: "+M.areas.map(a=>a.name+" "+pct(wkScore(a.list,R))).join("; ")+".");
   L.push("Week "+R+" by habit (days done / standard): "+M.hs.map(h=>h.name+" "+h.done[R-1]+"/"+h.std+(isNum(h)&&h.sums?" ("+nf(h.sums[R-1])+(h.unit?" "+h.unit:"")+" total)":"")).join("; ")+".");
@@ -1346,12 +1366,11 @@ function dataMsg(M,R,mode){const L=[],cw=M.cw,P=pace(M),T=targetWeek(M,R),done=w
     D.goals.list.forEach(g=>{const x=gstat(g,M);L.push("- "+g.name+" | now "+fv(g,x.cur)+(x.base!=null&&g.kind!=="rating"?" (started "+fv(g,x.base)+")":"")+" | target "+fv(g,x.tgt)+" "+(g.unit||"")+" | "+(x.reached?"reached":GL[x.s])+(g.lead?" | "+g.lead.name+" last logged "+(x.lead==null?"-":x.lead)+" vs target "+g.lead.target+"/wk":"")+" | "+(x.hl.map(h=>h.name).join(", ")||"none")+" "+pct(x.hp)+" | obstacle: "+(g.obstacle||"-")+" | plan: "+(g.plan||"-"))});
     const it=D.goals.ifthen||{},ks=Object.keys(it).filter(k=>it[k]);if(ks.length)L.push("If-then plans: "+ks.map(k=>(hab(k)||{name:k}).name+": "+it[k]).join("; "));
     L.push("Tie each point to the goal it moves, and call out any goal whose habits are on track but whose number is not moving.")}
-  const O=cfg().outcomes||[];if(O.length){L.push("\nMY 2026 OUTCOMES and the habits that drive them (Q4 so far):");
-    O.forEach(o=>{const hs=M.hs.filter(h=>h.outcome===o.id);L.push("- ["+o.area+"] "+o.text+" | habits: "+(hs.length?hs.map(h=>h.name+" "+pct(h.p)).join(", "):"none linked yet"))})}
-  L.push("\nOVERALL Q4: "+pct(M.p)+" ("+M.D+" of "+M.T+"). By finished week: "+(M.overallWeeks.map((v,i)=>v==null?null:"wk"+(i+1)+" "+pct(v)).filter(Boolean).join(", ")||"none")+". Current week so far: "+pct(M.cur)+".");
-  L.push("Areas (Q4): "+M.areas.map(a=>a.name+" "+pct(a.p)).join("; ")+".");
-  L.push("\nHABITS: name | area | std days/wk | weeks standard met / weeks counted | current streak of weeks met | best | days done per finished week | current week so far | bonus days above standard");
-  M.hs.forEach(h=>L.push("- "+h.name+" | "+h.area+" | "+h.std+" | "+h.D+"/"+h.T+" ("+pct(h.p)+") | "+(h.streak==null?"-":h.streak)+" | "+(h.best==null?"-":h.best)+" | "+(h.done.filter((_,i)=>M.logged[i]).join(",")||"-")+" | "+h.cur+" | "+h.bonus+(isNum(h)?" | number habit, day counts at "+unitTxt(h):"")+(pgoal(h)?" | done at "+pgoal(h)+" Pomodoros a day":"")));
+  L.push("\nOVERALL Q4 checks: "+pct(M.cp)+" ("+M.C+" of "+M.CT+" checks toward standards). By finished week: "+(M.overallChecks.map((v,i)=>v==null?null:"wk"+(i+1)+" "+pct(v)).filter(Boolean).join(", ")||"none")+".");
+  L.push("OVERALL Q4 standards met: "+pct(M.p)+" ("+M.D+" of "+M.T+" habit-weeks). By finished week: "+(M.overallWeeks.map((v,i)=>v==null?null:"wk"+(i+1)+" "+pct(v)).filter(Boolean).join(", ")||"none")+". Current week so far: "+pct(M.cur)+".");
+  L.push("Areas (Q4, checks / standards met): "+M.areas.map(a=>a.name+" "+pct(a.cp)+" / "+pct(a.p)).join("; ")+".");
+  L.push("\nHABITS: name | area | std days/wk | checks / checks needed | weeks standard met / weeks counted | current streak of weeks met | best | days done per finished week | current week so far | bonus days above standard");
+  M.hs.forEach(h=>L.push("- "+h.name+" | "+h.area+" | "+h.std+" | "+h.C+"/"+h.CT+" ("+pct(h.cp)+") | "+h.D+"/"+h.T+" ("+pct(h.p)+") | "+(h.streak==null?"-":h.streak)+" | "+(h.best==null?"-":h.best)+" | "+(h.done.filter((_,i)=>M.logged[i]).join(",")||"-")+" | "+h.cur+" | "+h.bonus+(isNum(h)?" | number habit, day counts at "+unitTxt(h):"")+(pgoal(h)?" | done at "+pgoal(h)+" Pomodoros a day":"")));
   const wks=[R-2,R-1,R].filter(w=>w>=1&&w<=(cw||M.N));
   L.push("\nDAILY GRID for weeks "+wks.join(", ")+", Mon to Sun (1 = done, x = I marked it not done, 0 = not logged, . = future; number habits show amounts):");
   M.hs.forEach(h=>L.push("- "+h.name+": "+wks.map(w=>{let s="";for(let d=0;d<7;d++){const dt=add(ws(w),d),k=key(dt);
@@ -1365,8 +1384,6 @@ function dataMsg(M,R,mode){const L=[],cw=M.cw,P=pace(M),T=targetWeek(M,R),done=w
   if(T&&T!==R){const cur=D.commits[T]||[];L.push("Commitments already set for week "+T+": "+(cur.length?cur.map(c=>commitTxt(c,T,M)).join("; "):"none yet"))}
   const fx=(D.focus[R]||[]).map(id=>{const x=M.hs.find(z=>z.id===id);return x?x.name+" "+x.done[R-1]+"/"+x.std:null}).filter(Boolean);
   L.push("\nFOCUS HABITS for week "+R+": "+(fx.length?fx.join("; "):"none chosen"));
-  const om=(cfg().outcomes||[]).filter(o=>o.target!==undefined&&o.target!==""&&isFinite(parseFloat(o.target)));
-  if(om.length)L.push("OUTCOME MEASURES: "+om.map(o=>{const l=outLatest(o),pc=outPct(o);return o.area+": "+(l?nf(l.v):"no value yet")+(o.unit?" "+o.unit:"")+" (start "+o.start+", target "+o.target+", "+(pc==null?"?":Math.round(pc*100)+"%")+" of the way"+(l?", logged "+l.d:"")+")"}).join("; "));
   const pl=planLines(M,R);L.push("\nMY PLAN for week "+R+" (flexible habits): "+(pl.length?pl.join("; "):"no days planned"));
   if(T&&T!==R){const pt=planLines(M,T);L.push("Plan for week "+T+": "+(pt.length?pt.join("; "):"not planned yet"))}
   const sk=stuckList(M);if(sk.length)L.push("\nSTUCK HABITS (below half their standard two finished weeks running): "+sk.map(r=>r.h.name+" "+r.last.join(",")+" of "+r.h.std).join("; ")+". Suggest a smaller standard or smaller version for these.");
@@ -1388,7 +1405,7 @@ function vCoach(M){const C=coachLists(M),connected=!!K.key,P=pace(M),cwk=commitW
   {const tv=TONES.find(t=>t[0]===(cfg().tone||"direct"))||TONES[2];const dsc=tv[1].split(": ")[1]||"";h+='<p class="note voice">'+esc(dsc.charAt(0).toUpperCase()+dsc.slice(1))+'. <i>'+esc(TONE_EX[tv[0]]||"")+'</i> 1 is super supportive, 5 is no BS.</p>'}
   h+=commitCard(M,cwk,true);
   h+='<div class="coach3"><section class="card"><h2>Strongest habits</h2><ol>'+C.strong.map(x=>'<li>'+esc(x.name)+' <b class="t-ok">'+pct(x.p)+'</b></li>').join("")+'</ol></section>'+
-   '<section class="card"><h2>Fix first</h2><ol>'+C.fix.map(x=>'<li>'+esc(x.name)+' <b class="t-'+x.s+'">'+pct(x.p)+'</b>'+(outcomeOf(x)?'<div class="note">Serves: '+esc(outcomeOf(x).area)+' outcome</div>':'')+'</li>').join("")+'</ol></section>'+
+   '<section class="card"><h2>Fix first</h2><ol>'+C.fix.map(x=>'<li>'+esc(x.name)+' <b class="t-'+x.s+'">'+pct(x.p)+'</b>'+(goalsOf(x).length?'<div class="note">Drives: '+esc(goalsOf(x).join(", "))+'</div>':'')+'</li>').join("")+'</ol></section>'+
    '<section class="card"><h2>Where to focus</h2><div class="focus">'+
    (C.gap?'<div><b>Biggest gap:</b> '+esc(C.gap.name)+', '+(C.gap.T-C.gap.D)+' finished week'+(C.gap.T-C.gap.D===1?'':'s')+' below standard.</div>':'')+
    (C.weak?'<div><b>Weakest area:</b> '+esc(C.weak.name)+' at '+pct(C.weak.p)+'.</div>':'')+
@@ -1477,7 +1494,8 @@ async function copyText(t,okMsg){try{await navigator.clipboard.writeText(t);toas
 function vReview(M){const w=S.revWeek,r=D.reviews[String(w)]||{},v=M.overallWeeks[w-1],pv=w>1?M.overallWeeks[w-2]:null;
   const ar=M.areas.map(a=>({n:a.name,v:a.weeks[w-1]})).filter(a=>a.v!=null).sort((a,b)=>b.v-a.v);
   let h='<div class="datebar"><button class="iconbtn" type="button" data-act="rweek" data-d="-1" aria-label="Previous week"'+(w<=1?" disabled":"")+'>‹</button><div class="lbl"><span class="eyebrow">Sunday review · week '+w+'</span><b>'+md(ws(w))+' – '+md(we(w))+'</b></div><button class="iconbtn" type="button" data-act="rweek" data-d="1" aria-label="Next week"'+(w>=M.N?" disabled":"")+'>›</button></div>';
-  h+='<div class="kpis">'+kpi("Week score",v==null?'<span class="muted">–</span>':'<span class="t-'+st(v)+'">'+pct(v)+'</span>',v==null?(we(w)>M.t?"Week still in progress":"No check-offs that week"):"Share of standard met")+
+  const wc=wkChecks(M.hs,w),wm=M.wkMet(M.hs,w);
+  h+='<div class="kpis">'+kpi("Checks",'<span class="t-'+st(wc.p)+'">'+pct(wc.p)+'</span>',wc.a+" of "+wc.b+" checks"+(we(w)>M.t?" so far":""))+kpi("Standards met",'<span class="t-'+st(wm.p)+'">'+wm.a+'<span class="muted" style="font-size:16px"> / '+wm.b+'</span></span>',we(w)>M.t?"Week still in progress":"Habits that hit their standard")+
    kpi("Change vs week before",v!=null&&pv!=null?'<span class="'+(v-pv>0?"t-ok":v-pv<0?"t-bad":"")+'">'+pts(v-pv)+'</span>':"–","")+
    kpi("Best area",'<span class="sm">'+esc(ar[0]?ar[0].n:"–")+'</span>',ar[0]?pct(ar[0].v):"",true)+
    kpi("Weakest area",'<span class="sm">'+esc(ar.length?ar[ar.length-1].n:"–")+'</span>',ar.length?pct(ar[ar.length-1].v):"",true)+'</div>';
@@ -1488,7 +1506,7 @@ function vReview(M){const w=S.revWeek,r=D.reviews[String(w)]||{},v=M.overallWeek
     '<select id="rv-'+id+'" data-rv="'+id+'"><option value="">Choose…</option>'+["Yes","Somewhat","No"].map(o=>'<option'+(r[id]===o?" selected":"")+'>'+o+'</option>').join("")+'</select><textarea id="rv-closer-why" data-rv="closerWhy" placeholder="Why?" style="margin-top:8px;min-height:60px">'+esc(r.closerWhy||"")+'</textarea>':
     '<textarea id="rv-'+id+'" data-rv="'+id+'">'+esc(r[id]||"")+'</textarea>')+'</div>').join("")+'</div></section>';
   h+=goalCheckin(w);
-  h+='<div class="row"><span class="spacer"></span>'+(syncOn()&&we(w)<M.t?'<button class="btn" type="button" data-act="shpubw" data-w="'+w+'">Share week '+w+' report</button>':'')+'<button class="btn primary" type="button" data-act="revcoach" data-w="'+w+'">Get coaching on this review</button></div>';
+  h+='<div class="row"><span class="spacer"></span>'+(syncOn()&&we(w)<M.t?'<button class="btn" type="button" data-act="shpubw" data-w="'+w+'">Share up to week '+w+'</button>':'')+'<button class="btn primary" type="button" data-act="revcoach" data-w="'+w+'">Get coaching on this review</button></div>';
   return h}
 
 /* ---------- settings ---------- */
@@ -1514,7 +1532,7 @@ function quarterCard(M){const end=we(M.N),from=add(end,-13),ready=M.t>=from;let 
   if(!S.roll)return h+'<div class="row"><button class="btn'+(ready?' primary':'')+'" type="button" data-act="openroll"'+(ready?'':' disabled')+'>Start next quarter</button>'+(ready?'':'<span class="note">Available from '+esc(md(from))+'</span>')+'</div></section>';
   const sg=rollSuggest(M);
   return h+'<div class="rollbox"><div class="row"><label class="cap">Name <input class="inp" id="roll-label" value="'+esc(nextLabel(cfg().label))+'"></label><label class="cap">Starts <input class="inp" type="date" id="roll-start" value="'+key(nx)+'"></label><label class="cap">Weeks <input class="inp" type="number" id="roll-weeks" min="4" max="26" value="13" style="width:72px"></label></div>'+
-   '<p class="note">'+esc(cfg().label)+' is saved under Past quarters on Progress with its score. Your habits, areas, outcomes and reminders carry over. Reviews, commitments, plans and coaching start fresh.</p>'+
+   '<p class="note">'+esc(cfg().label)+' is saved under Past quarters on Progress with its score. Your habits, areas, goals and reminders carry over. Reviews, commitments, plans and coaching start fresh.</p>'+
    (sg.length?'<b style="display:block;margin-top:6px">Suggested standard changes</b>'+sg.map(r=>'<label class="rsg"><input type="checkbox" data-rs="'+esc(r.h.id)+'" data-n="'+r.n+'" checked> '+esc(r.h.name)+': '+r.h.std+' → '+r.n+' days <span class="note">('+pct(r.h.p)+' this quarter)</span></label>').join(""):'')+
    '<div class="row" style="margin-top:10px"><button class="btn primary" type="button" data-act="dorollover">Start '+esc(nextLabel(cfg().label))+'</button><button class="btn" type="button" data-act="cancelroll">Cancel</button></div></div></section>'}
 function buildShare(w){const M=model(),c=cfg(),C=c.shareCfg,hide=C.hide||[],sec=C.sections||{},keep=x=>hide.indexOf(x.id)<0;
@@ -1531,10 +1549,15 @@ function buildShare(w){const M=model(),c=cfg(),C=c.shareCfg,hide=C.hide||[],sec=
   for(let i=1;i<=w;i++){const hs=M.hs.filter(x=>keep(x)&&x.sw[i-1]>0).map(x=>{const days=[];for(let j=0;j<7;j++){const k=key(add(ws(i),j));days.push(has(k,x.id)?1:isMiss(k,x.id)?2:0)}return {name:x.name,area:x.area,std:x.sw[i-1],done:x.done[i-1],days}});
     const wk={w:i,from:key(ws(i)),to:key(we(i)),habits:hs};if(sec.pomo)wk.pomo=pomoOf(i);out.weeks.push(wk)}
   return out}
-function publish(w){if(!syncOn())return toast("Turn on online storage first, so the report has somewhere to live.");if(!w)return;
+function publish(w,auto){if(!syncOn())return toast("Turn on online storage first, so the report has somewhere to live.");if(!w)return;
   D.shareRep=buildShare(w);cfg().share=true;persist();clearTimeout(SY.timer);render();
-  syncNow("push").then(()=>{toast(SY.state==="ok"?"Week "+w+" report published. Your link is live.":"Saved. The report goes live after the next sync.");safeRender()})}
+  syncNow("push").then(()=>{toast(SY.state==="ok"?(auto?"Shared report updated with week "+w+".":"Week "+w+" report published. Your link is live."):"Saved. The report goes live after the next sync.");safeRender()})}
 function stopShare(){cfg().share=false;D.shareRep=null;persist();clearTimeout(SY.timer);render();syncNow("push").then(()=>{toast("Sharing stopped. The link no longer shows anything.");safeRender()})}
+function shareWrap(M){const c=cfg(),r=D.shareRep,on=!!(c.share&&r&&r.on);
+  return '<details class="card shwrap" data-shd="1"'+(S.shOpen?" open":"")+'><summary><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 12l8-5M8 12l8 5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/></svg><b>Share</b><span class="note">'+(on?'Sharing weeks 1–'+esc(r.w)+(c.shareCfg.auto?' · updates automatically':''):'Not sharing')+'</span><span class="spacer"></span><svg class="gchev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></summary>'+
+   (syncOn()?shareCard(M):'<div class="sharebox"><p class="note">Sharing needs online storage, so the report has somewhere to live.</p><button class="btn primary sm" type="button" data-nav="setup">Set up online storage</button></div>')+'</details>'}
+function autoShare(M){if(VIEW||!syncOn()||S.autoPub)return;const c=cfg(),r=D.shareRep;if(!c.share||!r||!r.on||!c.shareCfg.auto)return;
+  if(M.lw&&M.lw>r.w){S.autoPub=true;setTimeout(()=>publish(M.lw,true),0)}}
 function shareCard(M){const c=cfg(),C=c.shareCfg,sec=C.sections||{},hide=C.hide||[],r=D.shareRep,on=!!(c.share&&r&&r.on),last=M.lw||0,pw=Math.min(S.shWeek||last,last),su=shareUrl();
   let h='<div class="sharebox"><h3>Share a weekly report</h3><p class="note" style="margin-top:4px">Anyone with the link sees a frozen report of your finished weeks up to the one you pick, and can step back through each week. They don’t need an account or the app, and they never see the rest of your tracker. It only changes when you publish again.</p>';
   if(on)h+='<p class="shstat"><b>Sharing week '+esc(r.w)+'</b> · published '+esc(ago(r.at))+(r.until?' · until '+esc(md(pd(r.until))):'')+'</p>'+(su?'<div class="row"><input class="inp" readonly value="'+esc(su)+'" aria-label="Report link" style="flex:1;min-width:200px" onclick="this.select()"><button class="btn sm primary" type="button" data-act="copyshare">Copy link</button></div>':'<p class="note">'+(appUrl()?'Your link appears after the next sync.':'Open the app from its web address to get a link you can send.')+'</p>');
@@ -1544,6 +1567,7 @@ function shareCard(M){const c=cfg(),C=c.shareCfg,sec=C.sections||{},hide=C.hide|
   h+='<fieldset class="shsec"><legend>Include</legend><label><input type="checkbox" data-shc="trend"'+(sec.trend?" checked":"")+'> Week-by-week trend</label><label><input type="checkbox" data-shc="pomo"'+(sec.pomo?" checked":"")+'> Pomodoro totals</label><label>Goals <select data-shc="goals"><option value="">Don’t share</option><option value="status"'+(sec.goals==="status"?" selected":"")+'>Progress only</option><option value="numbers"'+(sec.goals==="numbers"?" selected":"")+'>Progress and numbers</option></select></label></fieldset>';
   h+='<fieldset class="shsec"><legend>Habits to share · '+(c.habits.length-hide.filter(id=>hab(id)).length)+' of '+c.habits.length+'</legend>'+c.habits.map(x=>'<label><input type="checkbox" data-shh="'+esc(x.id)+'"'+(hide.indexOf(x.id)<0?" checked":"")+'> '+esc(x.name)+'</label>').join("")+'</fieldset>';
   h+='<div class="fld"><label for="sh-until">Stop sharing after (optional)</label><input class="inp" type="date" id="sh-until" data-shc="until" value="'+esc(C.until||"")+'"></div>';
+  h+='<label class="shauto"><input type="checkbox" data-shc="auto"'+(C.auto?" checked":"")+'> Keep it up to date: when a week finishes, add it to the report automatically the next time you open the app</label>';
   h+='<p class="note">The page has a Send a nudge button. When someone taps it, you see a check-in note on Today.</p>';
   h+='<div class="row">'+(on?'<button class="btn danger sm" type="button" data-act="shstop">Stop sharing</button>':'')+'<span class="spacer"></span><button class="btn primary" type="button" data-act="shpub">'+(on&&r.w===pw?'Publish week '+pw+' again':'Publish week '+pw)+'</button></div></div>';
   return h}
@@ -1552,11 +1576,12 @@ function vSync(M){
    '<p id="sync-line" style="font-weight:600">'+esc(syncLine())+'</p>'+
    '<div class="row"><button class="btn primary" type="button" data-act="syncnow">Sync now</button><button class="btn" type="button" data-act="copycode">Copy sync code for another device</button>'+
    (S.confirm==="unsync"?'<span class="confirmbox" style="width:auto"><p>Stop syncing on this device? Your online copy is kept.</p><button class="btn danger sm" type="button" data-act="unsync">Disconnect</button><button class="btn sm" type="button" data-act="cancel">Cancel</button></span>':'<button class="btn danger" type="button" data-act="askunsync">Disconnect</button>')+'</div>'+
-   shareCard(M)+
+   '<p class="note">Share a weekly report from the Week tab.</p>'+
+   '<div class="fld"><label for="sync-in">Want this device to use another device’s data instead? Paste that device’s sync code</label><div class="row"><input class="inp" id="sync-in" autocomplete="off" spellcheck="false" placeholder="Q4SYNC2-…" style="flex:1;min-width:200px"><button class="btn" type="button" data-act="connectsync">Switch to that code</button></div><p class="note">This device then shows that device’s data. What’s on this device now is replaced.</p></div>'+
    '<p class="note">To add another phone or computer: open the app there, go to Settings → Online storage, and paste the sync code. Keep the code private; anyone with it can read and change your habit data.</p></section>'}
-  return '<section class="card set"><div><h2>Store your data online</h2><p class="note" style="margin-top:4px">Keep a safe copy online and use the app on more than one device. One tap, no account or setup.</p></div>'+
-   '<div class="row"><button class="btn primary" type="button" data-act="enablesync">Turn on online storage</button><span class="note" id="sync-line">'+esc(SY.state==="error"?SY.msg:"Not connected.")+'</span></div>'+
-   '<div class="fld"><label for="sync-in">Already using it on another device? Paste its sync code</label><div class="row"><input class="inp" id="sync-in" autocomplete="off" spellcheck="false" placeholder="Q4SYNC2-…" style="flex:1;min-width:200px"><button class="btn" type="button" data-act="connectsync">Link this device</button></div></div></section>'}
+  return '<section class="card set" id="sync-card"><div><h2>Online storage and other devices</h2><p class="note" style="margin-top:4px">Keep a safe copy online and use the app on more than one device. No account needed.</p></div>'+
+   '<div class="sbox"><h3>Already use the app on another device?</h3><p class="note">On that device, open Settings and tap “Copy sync code for another device”, then paste it here.</p><div class="row"><input class="inp" id="sync-in" autocomplete="off" spellcheck="false" placeholder="Q4SYNC2-…" style="flex:1;min-width:200px"><button class="btn primary" type="button" data-act="connectsync">Link this device</button></div></div>'+
+   '<div class="sbox"><h3>First device?</h3><p class="note">Only do this on the device that has your data. Doing it on a second device creates a separate, empty online copy.</p><div class="row"><button class="btn" type="button" data-act="enablesync">Turn on online storage</button><span class="note" id="sync-line">'+esc(SY.state==="error"?SY.msg:"Not connected.")+'</span></div></div></section>'}
 function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.indexOf(h.area)<0)areas.push(h.area)});
   let h='<div><span class="eyebrow">This device</span><h1>Settings</h1></div>';
   h+='<section class="card set"><div><h2>Connect Claude for coaching</h2><p class="note" style="margin-top:4px">Optional. Paste an Anthropic API key to get one-tap coaching on the Coach screen. Create a key at console.anthropic.com under API keys; requests are billed to that account. The key is stored only in this browser and sent only to api.anthropic.com.</p></div>'+
@@ -1567,11 +1592,6 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
   h+=vSync(M);
   if(APP)h+=remindersCard();
   h+=quarterCard(M);
-  h+='<section class="card set"><div class="row"><h2>2026 outcomes</h2><span class="spacer"></span><button class="btn sm" type="button" data-act="addoutcome">+ Add outcome</button></div><p class="note">Your coach ties advice to these. Link each habit to the outcome it serves in the habit list below. Fill in any [brackets] with your own targets.</p>'+
-   (c.outcomes.length?c.outcomes.map((o,i)=>{const hs=c.habits.filter(h=>h.outcome===o.id);return '<div class="oedit"><div class="row"><select data-of="area" data-i="'+i+'" aria-label="Outcome area">'+c.areas.concat(c.areas.indexOf(o.area)<0&&o.area?[o.area]:[]).concat(["Other"]).map(a=>'<option'+(a===o.area?" selected":"")+'>'+esc(a)+'</option>').join("")+'</select><span class="spacer"></span>'+
-     (S.confirm==="oc"+i?'<button class="btn danger sm" type="button" data-act="deloutcome" data-i="'+i+'">Delete outcome</button><button class="btn sm" type="button" data-act="cancel">Cancel</button>':'<button class="iconbtn sm" type="button" data-act="askdeloc" data-i="'+i+'" aria-label="Delete outcome">×</button>')+'</div>'+
-     '<textarea data-of="text" data-i="'+i+'" aria-label="Outcome" placeholder="What does success look like by Dec 31?">'+esc(o.text)+'</textarea>'+
-     '<div class="row omeas"><label class="cap">Measure <input class="inp" data-of="unit" data-i="'+i+'" value="'+esc(o.unit||"")+'" placeholder="e.g. lb, $, clients" aria-label="Unit for outcome"></label><label class="cap">Start <input class="inp" type="number" step="any" data-of="start" data-i="'+i+'" value="'+esc(o.start==null?"":o.start)+'" aria-label="Starting value"></label><label class="cap">Target <input class="inp" type="number" step="any" data-of="target" data-i="'+i+'" value="'+esc(o.target==null?"":o.target)+'" aria-label="Target value"></label></div><p class="note">Habits: '+(hs.length?esc(hs.map(h=>h.name).join(", ")):"none linked yet")+'</p></div>'}).join(""):'<p class="muted">No outcomes yet.</p>')+'</section>';
   const tickCount=id=>Object.values(D.ticks).reduce((s,a)=>s+(a.indexOf(id)>=0?1:0),0)+Object.values(D.vals).reduce((s,o)=>s+(o[id]!=null?1:0),0);
   h+='<section class="card set" id="areas-ed"><div><div class="row"><h2>Life areas and habits</h2><span class="spacer"></span><button class="btn sm" type="button" data-act="openall">Open all</button><button class="btn sm" type="button" data-act="closeall">Close all</button></div><p class="note" style="margin-top:4px">Rename an area by editing its name. Standard is days per week (0–7); 0 means tracked with no weekly target, so it never counts against you. Tap an area to open or close it. Use the area menu to move a habit. Deleting a habit or area removes its check-offs.</p></div>'+
    c.areas.map((a,ai)=>{const open=UI.open.indexOf(a)>=0;const list=c.habits.map((x,i)=>({x,i})).filter(o=>o.x.area===a);
@@ -1586,7 +1606,7 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
        '<div class="hedit"><div class="mv"><button type="button" data-act="movehabit" data-i="'+i+'" data-d="-1" aria-label="Move '+esc(x.name)+' up"'+(li===0?" disabled":"")+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-act="movehabit" data-i="'+i+'" data-d="1" aria-label="Move '+esc(x.name)+' down"'+(li===list.length-1?" disabled":"")+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><input class="inp" aria-label="Habit name" data-hf="name" data-i="'+i+'" value="'+esc(x.name)+'"><input class="inp" aria-label="Days per week for '+esc(x.name)+'" title="Days per week (0 = no weekly target)" type="number" min="0" max="7" data-hf="std" data-i="'+i+'" value="'+x.std+'">'+
        '<select class="ar-sel" aria-label="Area for '+esc(x.name)+'" data-hf="area" data-i="'+i+'">'+c.areas.map(o=>'<option'+(o===a?" selected":"")+'>'+esc(o)+'</option>').join("")+'</select>'+
        '<button class="iconbtn" type="button" data-act="askdel" data-i="'+i+'" aria-label="Delete '+esc(x.name)+'">×</button>'+
-       '<div class="hsub"><label class="cap">Serves <select data-hf="outcome" data-i="'+i+'" aria-label="Outcome '+esc(x.name)+' serves" style="max-width:190px"><option value="">No outcome</option>'+(c.outcomes||[]).map(o=>'<option value="'+o.id+'"'+(x.outcome===o.id?" selected":"")+'>'+esc(o.area+": "+(o.text||"untitled").slice(0,32))+'</option>').join("")+'</select></label><label class="cap">Track as <select data-hf="type" data-i="'+i+'" aria-label="Track '+esc(x.name)+' as"><option value="check"'+(isNum(x)||S.convert===i?"":" selected")+'>Checkbox</option><option value="number"'+(isNum(x)||S.convert===i?" selected":"")+'>Number</option></select></label>'+
+       '<div class="hsub"><span class="cap">'+(x=>x.length?'Goal: '+esc(x.join(", ")):'Not linked to a goal')(D.goals?D.goals.list.filter(g=>(g.habits||[]).indexOf(x.id)>=0).map(g=>g.name):[])+'</span><label class="cap">Track as <select data-hf="type" data-i="'+i+'" aria-label="Track '+esc(x.name)+' as"><option value="check"'+(isNum(x)||S.convert===i?"":" selected")+'>Checkbox</option><option value="number"'+(isNum(x)||S.convert===i?" selected":"")+'>Number</option></select></label>'+
        (S.convert===i?'<div class="confirmbox" style="background:var(--soft);border-color:var(--line)"><p>Set the daily amount that counts as done. Past check-offs are recorded at this amount.</p>'+
          '<label class="cap">Daily target <input class="inp" id="cv-target" type="number" min="0" step="any" inputmode="decimal" value="1" style="width:72px"></label><label class="cap">Unit <input class="inp" id="cv-unit" placeholder="e.g. litres" style="width:120px"></label>'+
          '<button class="btn primary sm" type="button" data-act="doconvert" data-i="'+i+'">Switch to number</button><button class="btn sm" type="button" data-act="cancel">Cancel</button></div>':
@@ -1608,7 +1628,9 @@ function exportData(){const data=JSON.stringify(Object.assign({app:"q4-habits",v
 let pendingImport=null;
 
 /* ---------- events ---------- */
+const isFuture=k=>!!k&&pd(k)>today();
 document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data-act]");if(!b||b.disabled)return;
+  if(["tick","miss","pstep","step","tickall"].indexOf(b.dataset.act)>=0&&isFuture(b.dataset.k))return toast("That day hasn’t happened yet");
   if(VIEW&&b.dataset.act&&["day","today","week","thisweek","hidedone","hidetoday","pickday","ydone","tfilter","ptab","allpace","allstuck","showscore","showmet","dismisscele","pper"].indexOf(b.dataset.act)<0)return;
   if(b.dataset.nav)return go(b.dataset.nav);const a=b.dataset.act;
   if(a==="tick"&&b.dataset.cyc){const k=b.dataset.k,id=b.dataset.h;if(has(k,id)){setTick(k,id,false);setMiss(k,id,true)}else if(isMiss(k,id))setMiss(k,id,false);else setTick(k,id,true);persist();render();
@@ -1618,6 +1640,8 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
     const again=document.querySelector('[data-act="pstep"][data-k="'+k+'"][data-h="'+CSS.escape(h.id)+'"][data-d="'+b.dataset.d+'"]');if(again&&!again.disabled)again.focus({preventScroll:true});return}
   if(a==="ptimer"){if(S.timer&&S.timer.id===b.dataset.h)stopTimer(false);else{startTimer(b.dataset.h,b.dataset.k);render()}return}
   if(a==="pper"){S.pomoPer=b.dataset.v;return render()}
+  if(a==="wfresh"){UI.welcomed=1;saveUI();return render()}
+  if(a==="wlink"||a==="wrestore"){const r=a==="wrestore";go("setup");setTimeout(()=>{const el=document.getElementById(r?"import-file":"sync-in");if(!el)return;if(r){const lb=document.querySelector('label[for="import-file"]');if(lb){lb.scrollIntoView({block:"center"});lb.focus&&lb.focus()}}else{el.scrollIntoView({block:"center"});el.focus()}},60);return}
   if(a==="nudgeok"){cfg().nudgeSeen=SY.nudge;persist();return render()}
   if(a==="tick"){const k=b.dataset.k,id=b.dataset.h;const arr=(D.ticks[k]||[]).slice();const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else{arr.push(id);setMiss(k,id,false)}
     if(i<0&&S.view==="today"){const hh=hab(id);S.undo={k,ids:[id],label:hh?hh.name:"habit"};armUndo()}
@@ -1648,7 +1672,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
     D.reviews={};D.commits={};D.plans={};D.focus={};D.sessions=[];D.hist={};c.stuckSeen={};
     changes.forEach(([id,n])=>{const h=c.habits.find(x=>x.id===id);if(h)h.std=n});
     let sd=pd(st);while(sd.getDay()!==1)sd=add(sd,-1);c.start=key(sd);c.weeks=wk;c.label=lab;S.roll=false;S.day=S.week=S.revWeek=null;persist();toast(lab+" has started. "+M.N+" weeks of history saved.");return go("today")}
-  if(a==="pickday"){const d=pd(b.dataset.k);if(inRange(d)){S.day=d;S.undo=null;S.noteOpen=null}return render()}
+  if(a==="pickday"){const d=pd(b.dataset.k);if(inRange(d)&&d<=today()){S.day=d;S.undo=null;S.noteOpen=null}return render()}
   if(a==="tfilter"){UI.todayFilter=b.dataset.m;saveUI();S.undo=null;S.sticky=null;return render()}
   if(a==="dismisscele"){S.celebrated=b.dataset.v;return render()}
   if(a==="showmet"){S.showMet=!S.showMet;return render()}
@@ -1671,7 +1695,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="keepstd"){const c=cfg();c.stuckSeen=Object.assign({},c.stuckSeen||{},{[b.dataset.h]:model().lw});persist();return render()}
   if(a==="step"){keepRow(b.dataset.k,b.dataset.h);const k=b.dataset.k,id=b.dataset.h,v=(val(k,id)||0)+Number(b.dataset.d);setVal(k,id,Math.max(0,v));persist();render();
     const again=document.querySelector('[data-act="step"][data-k="'+k+'"][data-h="'+CSS.escape(id)+'"][data-d="'+b.dataset.d+'"]');if(again&&!again.disabled)again.focus({preventScroll:true});return}
-  if(a==="day"){const n=add(S.day,Number(b.dataset.d));if(inRange(n))S.day=n;return render()}
+  if(a==="day"){const n=add(S.day,Number(b.dataset.d));if(inRange(n)&&n<=today())S.day=n;return render()}
   if(a==="today"){const t=today();S.day=inRange(t)?t:S.day;return render()}
   if(a==="week"){S.week=Math.min(W(),Math.max(1,S.week+Number(b.dataset.d)));return render()}
   if(a==="thisweek"){S.week=model().cw||S.week;return render()}
@@ -1727,8 +1751,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
     syncNow("pull").then(()=>{if(SY.state==="ok")toast("Online storage is on");else{const msg=SY.state==="offline"?"Couldn’t reach online storage. Check your connection.":SY.msg;delete K.sync;saveKey();SY.state="error";SY.msg=msg}render()});render();return}
   if(a==="connectsync"){const conn=parseConn(document.getElementById("sync-in").value);
     if(!conn){toast("That isn’t a sync code. It starts with Q4SYNC2-.");return}
-    K.sync=conn;saveKey();D.sync={};SY.conflict=null;SY.state="";
-    syncNow("pull").then(()=>{if(SY.state==="ok"){toast("Online storage connected");}else if(SY.state==="error"||SY.state==="offline"){const msg=SY.state==="offline"?"Couldn’t reach online storage. Check your connection.":SY.msg;delete K.sync;saveKey();SY.state="error";SY.msg=msg}render()});
+    const prev=K.sync,prevSync=D.sync;if(prev&&prev.secret===conn.secret)return toast("This device already uses that code");
+    K.sync=conn;saveKey();D.sync={};if(prev||(!Object.keys(D.ticks).length&&!Object.keys(D.vals).length))D.dirty=false;SY.conflict=null;SY.state="";
+    syncNow("pull").then(()=>{if(SY.state==="ok"){UI.welcomed=1;saveUI();toast(prev?"Switched. This device now shows that device’s data.":"Linked. This device now shows your data.");}else if(SY.state==="error"||SY.state==="offline"){const msg=SY.state==="offline"?"Couldn’t reach online storage. Check your connection.":SY.msg;if(prev){K.sync=prev;D.sync=prevSync}else delete K.sync;saveKey();SY.state="error";SY.msg=msg}render()});
     toast("Linking…");return}
   if(a==="syncnow"){syncNow("pull").then(()=>{if(SY.state==="ok")toast("Synced")});return}
   if(a==="copycode")return copyText(encodeCode(),"Sync code copied. Paste it in Settings on your other device.");
@@ -1752,6 +1777,7 @@ document.addEventListener("input",e=>{const el=e.target;if(VIEW)return;
     if(el.dataset.it!=null){const it=D.goals.ifthen=D.goals.ifthen||{};if(el.value.trim())it[el.dataset.it]=el.value;else delete it[el.dataset.it];persist();return}
     if(el.dataset.gw&&gget(el.dataset.g)){gget(el.dataset.g)[el.dataset.gw]=el.value;persist();return}
     if(el.dataset.ge&&el.tagName!=="SELECT"&&gget(el.dataset.g)){setGE(gget(el.dataset.g),el.dataset.ge,el.value);persist();return}
+    if(el.dataset.gq){const w=String(model().cw||W()),L=Object.assign({},D.goals.log[w]||{}),v=gnum(el.value);if(v==null)delete L[el.dataset.gq];else L[el.dataset.gq]=v;D.goals.log[w]=L;persist();return}
     if(el.dataset.gl){const w=String(S.revWeek),L=Object.assign({},D.goals.log[w]||{}),v=gnum(el.value);if(v==null)delete L[el.dataset.gl];else L[el.dataset.gl]=v;D.goals.log[w]=L;persist();return}}
   if(el.id==="reply-in"){S.replyDraft=el.value;return}
   if(el.dataset.rem!==undefined){const r=cfg().reminders[Number(el.dataset.rem)];if(r&&/^\d{2}:\d{2}$/.test(el.value)){r.time=el.value;persist();syncNativeRem()}return}
@@ -1766,6 +1792,7 @@ document.addEventListener("input",e=>{const el=e.target;if(VIEW)return;
     else if(f==="pomo"){if(el.value==="")return;const n=Math.round(Number(el.value));if(!(n>=0&&n<=12))return;if(n)h.pomo=n;else h.pomo=0}
     else if(f==="outcome"){h.outcome=el.value}
     else{const v=el.value.trim();if(!v)return;h[f]=v}persist();return}
+  if(el.dataset.nv&&isFuture(el.dataset.k)){el.value="";return toast("That day hasn’t happened yet")}
   if(el.dataset.nv){keepRow(el.dataset.k,el.dataset.h);const s=el.value.trim();setVal(el.dataset.k,el.dataset.h,s===""?null:Number(s));if(s!=="")setMiss(el.dataset.k,el.dataset.h,false);persist();
     const h=hab(el.dataset.h);if(el.classList.contains("numcell"))el.classList.toggle("met",has(el.dataset.k,el.dataset.h));
     const row=el.closest(".habit");if(row)row.dataset.met=String(has(el.dataset.k,el.dataset.h));return}
@@ -1775,7 +1802,7 @@ document.addEventListener("input",e=>{const el=e.target;if(VIEW)return;
 const M0=()=>model();
 function keepRow(k,id){if(!S.sticky||S.sticky.k!==k)S.sticky={k,ids:[]};if(S.sticky.ids.indexOf(id)<0)S.sticky.ids.push(id)}
 function armUndo(){const u=S.undo;setTimeout(()=>{if(S.undo===u){S.undo=null;if(S.view==="today")safeRender()}},6000)}
-document.addEventListener("toggle",e=>{const el=e.target;if(el&&el.dataset){if(el.dataset.gd)S.gOpen[el.dataset.gd]=el.open;if(el.dataset.gc)S.gCard[el.dataset.gc]=el.open}if(el&&el.classList&&el.classList.contains("plan")){S.planOpen=el.open?Number(el.id.slice(5)):0}},true);
+document.addEventListener("toggle",e=>{const el=e.target;if(el&&el.dataset){if(el.dataset.shd)S.shOpen=el.open;if(el.dataset.gd)S.gOpen[el.dataset.gd]=el.open;if(el.dataset.gc)S.gCard[el.dataset.gc]=el.open}if(el&&el.classList&&el.classList.contains("plan")){S.planOpen=el.open?Number(el.id.slice(5)):0}},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="commit-in"){e.preventDefault();document.querySelector('[data-act="addcommit"]').click()}
   if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)&&e.target.id==="reply-in"){e.preventDefault();sendReply()}});
 document.addEventListener("change",e=>{const el=e.target;if(VIEW)return;
@@ -1783,11 +1810,13 @@ document.addEventListener("change",e=>{const el=e.target;if(VIEW)return;
     if(el.dataset.gh&&gget(el.dataset.g)){const g=gget(el.dataset.g);g.habits=(g.habits||[]).filter(x=>x!==el.dataset.gh);if(el.checked)g.habits.push(el.dataset.gh);persist();return render()}
     if(el.dataset.ge&&gget(el.dataset.g)){setGE(gget(el.dataset.g),el.dataset.ge,el.value);persist();if(el.tagName==="SELECT")render();return}
     if(el.dataset.gdl){if(/^\d{4}-\d{2}-\d{2}$/.test(el.value)){D.goals.deadline=el.value;persist()}return render()}
+    if(el.dataset.gq)return render();
     if(el.dataset.gw||el.dataset.it!=null||el.dataset.gl)return}
   if(el.dataset&&(el.dataset.shc!=null||el.dataset.shh!=null)){const C=cfg().shareCfg;
     if(el.dataset.shh!=null){C.hide=C.hide.filter(x=>x!==el.dataset.shh);if(!el.checked)C.hide.push(el.dataset.shh)}
     else{const f=el.dataset.shc;if(f==="week"){S.shWeek=Number(el.value);return render()}
       if(f==="until"){C.until=el.value;persist();if(cfg().share&&D.shareRep&&D.shareRep.on)return publish(D.shareRep.w);return render()}
+      if(f==="auto"){C.auto=el.checked;persist();if(el.checked){S.autoPub=false;autoShare(model())}return render()}
       if(f==="goals")C.sections.goals=el.value;else C.sections[f]=el.checked}
     persist();return render()}
   if(el.id==="import-file"&&el.files&&el.files[0]){const f=el.files[0];const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);
