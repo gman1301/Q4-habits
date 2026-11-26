@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Archivo+Black&family=Archivo:wght@500;600;700;800&display=swap">
 <style>
 /* Layout: phone = one screen at a time with a bottom tab bar; desktop = top nav + wide content column. Navy ledger look carried over from the Q4 sheet. */
 :root{
@@ -751,6 +751,90 @@ html[data-theme="industrial"] .wg-d,html[data-theme="industrial"] .wg-d.td{borde
 html[data-theme="industrial"] .bars i{background:#4A4E52;border-radius:0}html[data-theme="industrial"] .bars i.tdy{background:var(--accent)}html[data-theme="industrial"] .bars i.fut{background:transparent;border:1px dashed var(--line)}
 html[data-theme="industrial"] .vseg button{padding-inline:4px;letter-spacing:0;font-size:calc(11px*var(--fs,1))}
 html[data-theme="industrial"] .seg button{white-space:nowrap}
+
+/* ===== Bold look: cream paper, heavy black outlines, orange + electric blue, Archivo Black ===== */
+html[data-theme="bold"]{
+  --bg:#F4EFE6; --panel:#FFFFFF; --ink:#111111; --muted:#5E594F; --line:#111111; --soft:#E9E2D5; --seg:#E9E2D5;
+  --band:#111111; --band-ink:#F4EFE6; --accent:#FF5A1F; --accent-ink:#111111;
+  --today:#2340FF; --today-soft:#DDE2FF; --today-ink:#2340FF;
+  --ok:#111111; --ok-soft:#3DDC97; --warn:#FF5A1F; --warn-soft:#FFE1D3; --bad:#D7261E; --bad-soft:#FFD9D2; --risk:#D7261E;
+  --dot-miss:#CFC8BB; --h1:#E9E2D5; --h2:#FFB08F; --h3:#FF7F4D; --h4:#FF5A1F;
+  --shadow:none; --r:0px;
+  --display:"Archivo Black","Arial Black",system-ui,sans-serif;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light}
+html[data-theme="bold"] body{font-weight:500}
+html[data-theme="bold"] .top{background:#111;color:#F4EFE6}
+html[data-theme="bold"] .brand{font-family:var(--display);font-weight:400;text-transform:uppercase;color:var(--accent);letter-spacing:0}
+html[data-theme="bold"] .brand small{color:#BDB7AC;font-family:var(--body);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+html[data-theme="bold"] h1,html[data-theme="bold"] h2,html[data-theme="bold"] h3,html[data-theme="bold"] .big,html[data-theme="bold"] .mid,html[data-theme="bold"] .darkbig b,html[data-theme="bold"] .gbig{font-family:var(--display);font-weight:400!important;text-transform:uppercase;letter-spacing:-.01em}
+html[data-theme="bold"] h1,html[data-theme="bold"] .big{letter-spacing:-.03em}
+html[data-theme="bold"] .hname{font-weight:700}
+html[data-theme="bold"] .eyebrow,html[data-theme="bold"] .eyebrow2,html[data-theme="bold"] .cap,html[data-theme="bold"] .fld label,html[data-theme="bold"] legend,html[data-theme="bold"] .tile>span,html[data-theme="bold"] .kpi .k,html[data-theme="bold"] .wg-area,html[data-theme="bold"] .hsec-h>span,html[data-theme="bold"] .sess-h{text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:var(--ink);font-size:calc(11px*var(--fs,1))}
+html[data-theme="bold"] .card,html[data-theme="bold"] .tile,html[data-theme="bold"] .kpi,html[data-theme="bold"] .wgrid,html[data-theme="bold"] .empty,html[data-theme="bold"] .daynote,html[data-theme="bold"] .sheet,html[data-theme="bold"] .shwrap,html[data-theme="bold"] .gcard,html[data-theme="bold"] .hcard2,html[data-theme="bold"] .nudge,html[data-theme="bold"] .sharebox,html[data-theme="bold"] .sbox,html[data-theme="bold"] .commit{border:3px solid #111;border-radius:0;box-shadow:none;background:var(--panel)}
+html[data-theme="bold"] .card,html[data-theme="bold"] .tile,html[data-theme="bold"] .kpi,html[data-theme="bold"] .wgrid,html[data-theme="bold"] .empty,html[data-theme="bold"] .daynote,html[data-theme="bold"] .sheet,html[data-theme="bold"] .shwrap,html[data-theme="bold"] .gcard,html[data-theme="bold"] .hcard2,html[data-theme="bold"] .nudge,html[data-theme="bold"] .sharebox,html[data-theme="bold"] .sbox,html[data-theme="bold"] .commit,html[data-theme="bold"] .hlist,html[data-theme="bold"] .hero,html[data-theme="bold"] .dark,html[data-theme="bold"] .btn,html[data-theme="bold"] .chip,html[data-theme="bold"] .seg,html[data-theme="bold"] .seg button,html[data-theme="bold"] .iconbtn,html[data-theme="bold"] .tag,html[data-theme="bold"] .pill,html[data-theme="bold"] .inp,html[data-theme="bold"] select,html[data-theme="bold"] textarea,html[data-theme="bold"] .dayb,html[data-theme="bold"] .metbtn,html[data-theme="bold"] .snack,html[data-theme="bold"] .verdict,html[data-theme="bold"] .cell,html[data-theme="bold"] .gc,html[data-theme="bold"] .wg-pct,html[data-theme="bold"] .tbar,html[data-theme="bold"] .lbtn,html[data-theme="bold"] .why>summary,html[data-theme="bold"] .why>p,html[data-theme="bold"] .ins,html[data-theme="bold"] .gedit,html[data-theme="bold"] .shsec,html[data-theme="bold"] .gtrack,html[data-theme="bold"] .gtrack i,html[data-theme="bold"] .rbar,html[data-theme="bold"] .rbar i,html[data-theme="bold"] .track,html[data-theme="bold"] .track i,html[data-theme="bold"] .pg-b,html[data-theme="bold"] .pg-b i,html[data-theme="bold"] .bars i,html[data-theme="bold"] .trend i,html[data-theme="bold"] .wg-d,html[data-theme="bold"] .hwrap{border-radius:0!important}
+html[data-theme="bold"] .hero{background:var(--accent);color:#111;border:0;box-shadow:none}
+html[data-theme="bold"] .hero .eyebrow,html[data-theme="bold"] .hero .herosub,html[data-theme="bold"] .hero .linkbtn{color:#111}html[data-theme="bold"] .hero .herosub .good{color:#111;text-decoration:underline;text-decoration-thickness:2px}html[data-theme="bold"] .hero .herosub .bad{color:#111;background:#F4EFE6;padding:0 4px}
+html[data-theme="bold"] .herobig{font-family:var(--body)}html[data-theme="bold"] .herobig b{font-family:var(--display);font-weight:400;font-size:calc(52px*var(--fs,1));line-height:.95;letter-spacing:-.03em;color:#111;display:block}
+html[data-theme="bold"] .herobig .judge{color:#F4EFE6;background:#111;display:inline-block;padding:2px 6px;margin-top:6px}html[data-theme="bold"] .herobig .judge.hi{color:#111;background:#F4EFE6}
+html[data-theme="bold"] .ringtxt b{font-family:var(--display);font-weight:400}
+html[data-theme="bold"] .dark{background:#111;color:#F4EFE6}html[data-theme="bold"] .dark .eyebrow.inv{color:#BDB7AC}html[data-theme="bold"] .darkbig b{color:var(--accent)}
+html[data-theme="bold"] .btn{background:#fff;border:2px solid #111;color:#111;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="bold"] .btn.primary,html[data-theme="bold"] .btn.primary:hover{background:var(--accent);border-color:#111;color:#111}
+html[data-theme="bold"] .btn.danger{background:#fff;border-color:var(--bad);color:var(--bad)}
+html[data-theme="bold"] .linkbtn{color:#2340FF;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="bold"] .seg{background:#fff;border:2px solid #111;padding:2px}
+html[data-theme="bold"] .seg button{color:#111;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+html[data-theme="bold"] .seg button[aria-pressed="true"],html[data-theme="bold"] .lbtn[aria-pressed="true"]{background:#111;color:#F4EFE6;box-shadow:none}
+html[data-theme="bold"] .chip{background:#fff;border:2px solid #111;color:#111;font-weight:700}html[data-theme="bold"] .chip[aria-pressed="true"]{background:#111;color:#F4EFE6}
+html[data-theme="bold"] .inp,html[data-theme="bold"] select,html[data-theme="bold"] textarea{background:#fff;color:#111;border:2px solid #111}
+html[data-theme="bold"] .inp:focus,html[data-theme="bold"] select:focus,html[data-theme="bold"] textarea:focus{outline:3px solid #2340FF;outline-offset:0}
+html[data-theme="bold"] .tag{border:0;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:calc(10px*var(--fs,1));padding:3px 6px}
+html[data-theme="bold"] .t-risk{background:var(--bad)!important;color:#fff!important}html[data-theme="bold"] .t-plan{background:#2340FF!important;color:#fff!important}html[data-theme="bold"] .t-quiet{background:#E9E2D5!important;color:#111!important}
+html[data-theme="bold"] .pill{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+html[data-theme="bold"] .tabs{background:#111;border-top:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+html[data-theme="bold"] .tabs button{color:#BDB7AC;border-top:4px solid transparent;padding:14px 0 16px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="bold"] .tabs button .ti,html[data-theme="bold"] .tabs button svg{display:none}
+html[data-theme="bold"] .tabs button[aria-current="page"]{color:var(--accent);border-top-color:var(--accent);background:none}
+html[data-theme="bold"] .top-nav button{color:#BDB7AC;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-bottom:4px solid transparent;border-radius:0}
+html[data-theme="bold"] .top-nav button[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent);background:none}
+html[data-theme="bold"] .gear{border-radius:0;border:2px solid #F4EFE6;background:transparent;color:#F4EFE6}html[data-theme="bold"] .gear[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="bold"] .dayb{background:#fff;border:2px solid #111;color:#111}
+html[data-theme="bold"] .dayb.sel,html[data-theme="bold"] .dayb.sel.istoday{background:#111!important;color:#F4EFE6!important;border-color:#111!important}
+html[data-theme="bold"] .dayb.istoday:not(.sel){border-color:#2340FF;border-width:3px}
+html[data-theme="bold"] .dayb .db i{background:var(--accent)}
+html[data-theme="bold"] .hlist{background:transparent;box-shadow:none;border:0;display:grid;gap:8px;overflow:visible}
+html[data-theme="bold"] .hwrap{border:3px solid #111!important;background:#fff}html[data-theme="bold"] .hlist>.hwrap:first-child{border-top:3px solid #111!important}
+html[data-theme="bold"] .hwrap:has(.hrow.on),html[data-theme="bold"] .hwrap:has(.hrow.num[data-met="true"]){background:#111;color:#F4EFE6}
+html[data-theme="bold"] .hwrap:has(.hrow.on) .hname{color:#F4EFE6;text-decoration:line-through;text-decoration-thickness:2px}
+html[data-theme="bold"] .hwrap:has(.hrow.on) .hcount,html[data-theme="bold"] .hwrap:has(.hrow.on) .iconbtn{color:#F4EFE6;border-color:#5E594F}
+html[data-theme="bold"] .hrow .chk{width:34px;height:34px;border-radius:0;border:3px solid #111;background:#fff}
+html[data-theme="bold"] .hrow .chk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}html[data-theme="bold"] .hrow .chk svg{color:#111;stroke-width:3.2}
+html[data-theme="bold"] .hwrap .iconbtn{border:2px solid #111;background:transparent;border-radius:0}
+html[data-theme="bold"] .dot{border-radius:0}html[data-theme="bold"] .dot.d-done,html[data-theme="bold"] .dots .d-done,html[data-theme="bold"] .legend2 .d-done{background:#111}html[data-theme="bold"] .d-today{border-color:#2340FF}
+html[data-theme="bold"] .hwrap:has(.hrow.on) .dots .d-done{background:var(--accent)}
+html[data-theme="bold"] .wgrid .cell{border-radius:0}html[data-theme="bold"] .wgrid .cell.d-done{background:#111;color:var(--accent)}html[data-theme="bold"] .wgrid .cell.d-today{border:3px solid #2340FF}
+html[data-theme="bold"] .rgrid2 .cell.d-done{background:#111;color:var(--accent)}
+html[data-theme="bold"] .wg-d.td{background:var(--accent);color:#111}html[data-theme="bold"] .wg-cell.td{background:rgba(255,90,31,.10)}html[data-theme="bold"] .wg-p.td{background:rgba(255,90,31,.16)}
+html[data-theme="bold"] .hd.on i{background:#111;border-color:#111}html[data-theme="bold"] .hd i{border-radius:0}
+html[data-theme="bold"] .verdict{background:var(--accent);color:#111;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:calc(19px*var(--fs,1));line-height:1.15}
+html[data-theme="bold"] .verdict.hi{background:#2340FF;color:#fff}
+html[data-theme="bold"] .snack{background:#111;color:#F4EFE6;border-radius:0}html[data-theme="bold"] .snack button{color:var(--accent)}
+html[data-theme="bold"] .nudge.warnb{background:#fff;border-color:var(--accent)}
+html[data-theme="bold"] .welcome{border:3px solid var(--accent)!important}
+html[data-theme="bold"] .tbar{background:#2340FF;color:#fff}html[data-theme="bold"] .tbar .btn{background:transparent;color:#fff;border-color:#fff}
+html[data-theme="bold"] .sheetbg{background:rgba(17,17,17,.6)}
+html[data-theme="bold"] .xbtn[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:#fff}
+html[data-theme="bold"] .tbtn.on{background:#2340FF;border-color:#2340FF;color:#fff}
+html[data-theme="bold"] .bars i{background:#111}html[data-theme="bold"] .bars i.tdy{background:var(--accent)}html[data-theme="bold"] .bars i.fut{background:transparent;border:2px dashed #CFC8BB}
+html[data-theme="bold"] .vseg button{padding-inline:4px;letter-spacing:0;font-size:calc(11px*var(--fs,1))}
+html[data-theme="bold"] .score th{text-transform:uppercase;letter-spacing:.06em;font-weight:800;font-size:calc(10px*var(--fs,1))}
+html[data-theme="bold"] .msg.ai .cs{border-radius:0;border-left-width:6px}
+html[data-theme="bold"] .wg-pct{background:#E9E2D5}html[data-theme="bold"] .wg-pct.all{background:#111;color:#F4EFE6}html[data-theme="bold"] .wg-pct.all .wg-n,html[data-theme="bold"] .wg-pct.all .wg-p,html[data-theme="bold"] .wg-pct.all .wg-c{color:#F4EFE6}
+html[data-theme="bold"] .hwrap:has(.hrow.on),html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]){color:#F4EFE6}
+html[data-theme="bold"] .hwrap:has(.hrow.on) .hname,html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .hname{color:#F4EFE6;text-decoration:line-through;text-decoration-thickness:2px}
+html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .hcount,html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .pcn,html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .pcn small,html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .iconbtn,html[data-theme="bold"] .hwrap:has(.hrow[data-met="true"]) .numin{color:#F4EFE6;border-color:#5E594F;background:transparent}
+html[data-theme="bold"] .seg{max-width:100%;flex-wrap:wrap}html[data-theme="bold"] #coach-card .seg button{font-size:calc(11px*var(--fs,1));padding-inline:8px}
 </style>
 </head>
 <body>
@@ -945,9 +1029,9 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 setInterval(()=>{if(document.visibilityState==="visible"&&!SY.busy)syncNow("pull")},90000);
 
 const UI=(()=>{try{const u=JSON.parse(lsGet("q4habits.ui")||"{}");return Object.assign({},u&&typeof u==="object"?u:{},{open:Array.isArray(u.open)?u.open:[],todayMode:u.todayMode||"priority",hideDone:!!u.hideDone,hideToday:!!u.hideToday,todayFilter:u.todayFilter==="done"?"done":"todo"})}catch(e){return {open:[],todayMode:"priority"}}})();
-const LOOKS=[["industrial","Industrial"],["classic","Classic"]];
-function applyTheme(){const t=(typeof D!=="undefined"&&D.cfg&&D.cfg.theme)||"industrial";if(t==="industrial")document.documentElement.dataset.theme="industrial";else delete document.documentElement.dataset.theme;
-  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",t==="industrial"?"#17191B":"#0F1B33")}
+const LOOKS=[["industrial","Industrial"],["bold","Bold"],["classic","Classic"]];
+function applyTheme(){const t=(typeof D!=="undefined"&&D.cfg&&D.cfg.theme)||"industrial";if(t==="industrial"||t==="bold")document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",{industrial:"#17191B",bold:"#111111"}[t]||"#0F1B33")}
 function saveUI(){lsSet("q4habits.ui",JSON.stringify(UI))}
 /* Text size: every font size in the app is multiplied by --fs, so text grows or shrinks while the layout keeps its shape. Saved per device. */
 const FONTS=[["s","Small",0.9],["m","Default",1],["l","Large",1.15]];
@@ -1773,7 +1857,7 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
   {const cur=(FONTS.find(x=>x[0]===UI.fontSize)||FONTS[1])[0];
    h+='<section class="card set"><div class="row"><h2>Text size</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Text size">'+FONTS.map(([v,l])=>'<button type="button" data-act="fsize" data-v="'+v+'" aria-pressed="'+(cur===v)+'"><span class="fs-'+v+'">'+l+'</span></button>').join("")+'</div></div><p class="note">Makes all the text in the app smaller or larger on this device.</p></section>'}
   {const ct=cfg().theme||"industrial";
-   h+='<section class="card set"><div class="row"><h2>Look</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Look">'+LOOKS.map(([v,l])=>'<button type="button" data-act="look" data-v="'+v+'" aria-pressed="'+(ct===v)+'">'+l+'</button>').join("")+'</div></div><p class="note">Industrial: dark, safety yellow, square edges. Classic: the original light navy look, which follows your phone’s light or dark mode.</p></section>'}
+   h+='<section class="card set"><div class="row"><h2>Look</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Look">'+LOOKS.map(([v,l])=>'<button type="button" data-act="look" data-v="'+v+'" aria-pressed="'+(ct===v)+'">'+l+'</button>').join("")+'</div></div><p class="note">Industrial: dark, safety yellow, square edges. Bold: cream, black outlines, orange and electric blue, heavy type. Classic: the original light navy look, which follows your phone’s light or dark mode.</p></section>'}
   {const cv=cfg().voice||"honest",V=(VOICES.find(v=>v[0]===cv)||VOICES[1]);
    h+='<section class="card set"><div class="row"><h2>App voice</h2></div><div class="seg vseg" role="group" aria-label="App voice">'+VOICES.map(([v,l])=>'<button type="button" data-act="avoice" data-v="'+v+'" aria-pressed="'+(cv===v)+'">'+l+'</button>').join("")+'</div><p class="note">How Today talks to you about misses: from kind, to plain facts, to harsh, to no filter (swearing). For example: <i>'+esc(V[2].sample)+'</i>. Your coach has its own voice on the Coach tab.</p></section>'}
   h+='<section class="card set"><div><h2>Connect Claude for coaching</h2><p class="note" style="margin-top:4px">Optional. Paste an Anthropic API key to get one-tap coaching on the Coach screen. Create a key at console.anthropic.com under API keys; requests are billed to that account. The key is stored only in this browser and sent only to api.anthropic.com.</p></div>'+
