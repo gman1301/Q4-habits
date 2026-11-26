@@ -640,7 +640,7 @@ main{max-width:780px}
 .shwrap .sharebox{border:0;border-top:1px solid var(--line);border-radius:0;margin:0}
 .shauto{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}.shauto input{margin-top:3px}
 .gq{gap:10px;margin-top:10px}
-.wg-pct{min-height:30px;background:var(--bg);border-radius:8px;margin:2px 0}.wg-pct .wg-n{font-size:11px;font-weight:700;color:var(--muted);padding-left:6px}
+.wg-pct{min-height:30px;background:var(--bg);border-radius:8px;margin:2px 0 6px}.wg-pct .wg-n{font-size:11px;font-weight:700;color:var(--muted);padding-left:6px}
 .wg-p{text-align:center;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}.wg-p.full{color:var(--accent)}.wg-p.zero{color:var(--muted);font-weight:600}.wg-p.fut{color:var(--muted)}.wg-p.td{background:var(--today-soft);border-radius:6px;padding:4px 0}
 .wg-pct.all{margin-top:8px;background:var(--soft)}.wg-pct.all .wg-n{color:var(--ink)}
 @media (max-width:420px){.wg-p{font-size:10px;letter-spacing:-.02em}}
@@ -1187,13 +1187,13 @@ function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.pus
   h+='<section class="wgrid" aria-label="Week '+w+' grid"><div class="wg-row wg-h"><span class="wg-n">Habit</span>'+days.map((dt,i)=>'<span class="wg-d'+(key(dt)===t?" td":"")+'"><small>'+DN[i]+'</small>'+dt.getDate()+'</span>').join("")+'<span class="wg-c">Done</span></div>';
   M.areas.forEach(ar=>{const shown=hide?ar.list.filter(x=>!isDone(x)):ar.list;if(!shown.length)return;const hid=ar.list.length-shown.length;
     h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+(c=>c.b?c.a+'/'+c.b+' checks · '+pct(c.p):'–')(wkChecks(ar.list,w))+(m=>m.b?' · '+m.a+'/'+m.b+' met':'')(M.wkMet(ar.list,w))+'</span></div>';
-    h+=dayPct(ar.list,"Done each day");
     shown.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt)||dt>M.t;
         const xm=!on&&isMiss(k,x.id),st=on?"d-done":xm?"d-x":k===t?(pl?"d-todayplan":"d-today"):dt<M.t?"d-miss":pl?"d-plan":"d-future";
         const lab=esc(x.name)+', '+esc(fmt(dt,{weekday:"long",month:"short",day:"numeric"}))+': '+word[st];
         if(isNum(x))return '<span class="wg-cell'+(k===t?" td":"")+'"><input class="cell numcell '+st+(on?" met":"")+(pl&&!on?" plan":"")+'" type="number" inputmode="decimal" min="0" step="any" data-nv="1" data-k="'+k+'" data-h="'+esc(x.id)+'" value="'+nf(val(k,x.id))+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'></span>';
         return '<span class="wg-cell'+(k===t?" td":"")+'"><button type="button" class="cell '+st+(pl&&!on?" plan":"")+'" data-act="tick" data-cyc="1" data-k="'+k+'" data-h="'+esc(x.id)+'" aria-pressed="'+on+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'>'+(xm?'<span class="xm">✕</span>':CHECK)+'</button></span>'}).join("")+
-        '<span class="wg-c '+(isDone(x)?"met":"")+'">'+(x.sw[w-1]>0?x.done[w-1]+'/'+x.sw[w-1]:x.sw[w-1]==null?'–':x.done[w-1])+'</span></div>'})});
+        '<span class="wg-c '+(isDone(x)?"met":"")+'">'+(x.sw[w-1]>0?x.done[w-1]+'/'+x.sw[w-1]:x.sw[w-1]==null?'–':x.done[w-1])+'</span></div>'});
+    h+=dayPct(ar.list,"Done each day")});
   h+=dayPct(M.hs,"All areas",true);
   h+='</section><p class="hint">Tap a box once for done, twice for not done, three times to clear.</p><div class="legend2"><span><i class="dot d-done"></i>Done</span><span><i class="dot d-miss"></i>Missed</span><span><i class="dot d-x"></i>Not done</span><span><i class="dot d-plan"></i>Planned</span><span><i class="sq"></i>Today</span></div>';
   return h}
