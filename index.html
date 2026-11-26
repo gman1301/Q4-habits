@@ -644,6 +644,7 @@ main{max-width:780px}
 .wg-p{text-align:center;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}.wg-p.full{color:var(--accent)}.wg-p.zero{color:var(--muted);font-weight:600}.wg-p.fut{color:var(--muted)}.wg-p.td{background:var(--today-soft);border-radius:6px;padding:4px 0}
 .wg-pct.all{margin-top:8px;background:var(--soft)}.wg-pct.all .wg-n{color:var(--ink)}
 @media (max-width:420px){.wg-p{font-size:10px;letter-spacing:-.02em}}
+.rgrid2 .cell{display:grid;place-items:center}.rgrid2 .cell.d-done svg{opacity:1}.rgrid2 .cell.d-x .xm{font-size:13px}
 </style>
 </head>
 <body>
@@ -1123,9 +1124,6 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   if(wel)h+='<section class="card welcome"><h2>Welcome</h2><p class="note" style="margin:4px 0 10px">Is this your first device, or do you already track habits on another phone or computer?</p><div class="row"><button class="btn primary" type="button" data-act="wlink">Link to my other device</button><button class="btn" type="button" data-act="wrestore">Restore a backup</button><button class="btn" type="button" data-act="wfresh">Start fresh here</button></div></section>';
   if(!wel&&w===M.cw&&M.hs.some(flexible)&&!Object.keys(D.plans[w]||{}).length&&!(D.focus[w]||[]).length)h+='<div class="nudge"><span>Plan week '+w+': pick up to 3 focus habits and the days for flexible ones.</span><button class="btn sm primary" type="button" data-act="openplan" data-w="'+w+'">Plan week '+w+'</button></div>';
   if(!wel&&isT&&!syncOn()&&!VIEW){const last=Math.max(UI.lastBackup||0,UI.lastNag||0);if(Date.now()-last>7*DAY)h+='<div class="nudge warnb" role="status"><span><b>Your history is only on this phone.</b> Back it up or turn on online storage.</span><button class="btn sm primary" type="button" data-act="export">Back up</button><button class="btn sm" type="button" data-nav="setup">Online storage</button><button class="linkbtn" type="button" data-act="nagLater">Later</button></div>'}
-  if(isT&&!VIEW){const y=add(d,-1),yk=key(y);if(inRange(y)&&UI.ydone!==yk){if(!S.ylist||S.ylist.k!==yk)S.ylist={k:yk,ids:M.hs.filter(x=>x.std>0&&!isNum(x)&&!has(yk,x.id)).map(x=>x.id)};
-    const yl=S.ylist.ids.map(id=>M.hs.find(x=>x.id===id)).filter(Boolean);
-    if(yl.length)h+='<section class="ycard" aria-label="Yesterday"><div class="ych"><b>Yesterday</b><span>'+yl.filter(x=>!has(yk,x.id)).length+' not ticked. Did you do any?</span><span class="spacer"></span><button class="linkbtn" type="button" data-act="ydone" data-k="'+yk+'">All logged</button></div><div class="ychips">'+yl.map(x=>'<button type="button" class="chip" data-act="tick" data-k="'+yk+'" data-h="'+esc(x.id)+'" aria-pressed="'+has(yk,x.id)+'">'+esc(x.name)+'</button>').join("")+'</div></section>'}}
   if(w===M.cw)h+=commitCard(M,commitWeek(M),false);
   const doneN=S2.filter(o=>o.on||o.mk).length;
   h+='<div class="toolrow"><div class="seg" role="group" aria-label="Show"><button type="button" data-act="tfilter" data-m="todo" aria-pressed="'+(filt==="todo")+'">To do · '+(tot-doneN)+'</button><button type="button" data-act="tfilter" data-m="done" aria-pressed="'+(filt==="done")+'">Done · '+doneN+'</button></div><span class="spacer"></span>'+
@@ -1859,7 +1857,7 @@ if(!VIEW&&!APP&&/^https?:$/.test(location.protocol)&&"serviceWorker" in navigato
 })()}
 function showReport(d){const E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const P=x=>{const[a,b,c]=String(x).split("-").map(Number);return new Date(a,b-1,c)},MD=x=>P(x).toLocaleDateString("en-CA",{month:"short",day:"numeric"}),PC=v=>v==null?"–":Math.round(v*100)+"%";
-  const DL=["M","T","W","T","F","S","S"],DF=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const DL=["M","T","W","T","F","S","S"],DF=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],CK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   document.body.classList.add("view","report");document.title=(d.label||"Habits")+" · weekly report";
   ["tabs","topnav","gear"].forEach(id=>{const el=document.getElementById(id);if(el)el.hidden=true});
   const br=document.querySelector(".brand");if(br&&br.firstChild)br.firstChild.nodeValue="Habits";const sub=document.getElementById("sub");if(sub)sub.textContent=(d.label||"")+" · weekly report";
@@ -1878,13 +1876,21 @@ function showReport(d){const E=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"
       '<div class="grow center"><div class="eyebrow2">'+E(d.label||"")+'</div><h1 class="mid">Week '+E(W.w)+'</h1><div class="sub">'+E(MD(W.from)+' – '+MD(W.to))+'</div></div>'+
       '<button class="iconbtn lg" type="button" data-rep="next" aria-label="Next week"'+(wi>=weeks.length-1?' disabled':'')+'><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>';
     if(weeks.length>1)h+='<div class="wchips" role="group" aria-label="Choose a week">'+weeks.map((x,i)=>'<button type="button" class="chip" data-rep="wk" data-i="'+i+'" aria-pressed="'+(i===wi)+'">W'+E(x.w)+'</button>').join("")+'</div>';
-    const per=[0,1,2,3,4,5,6].map(i=>hs.filter(x=>x.days[i]===1).length);
-    h+='<section class="dark" aria-label="Week total"><div class="eyebrow inv">Week '+E(W.w)+' total</div><div class="darkbig"><b>'+PC(T.p)+'</b><span>'+E(T.a)+' of '+E(T.b)+' checks · '+E(T.m)+' of '+E(T.n)+' standards met</span></div><div class="bars" role="img" aria-label="Habits checked each day: '+per.map((c,i)=>DF[i]+' '+c).join(", ")+'">'+per.map((c,i)=>'<span class="bcol"><i style="height:'+Math.max(6,Math.round(c/(hs.length||1)*64))+'px"></i><small>'+DL[i]+'</small></span>').join("")+'</div></section>';
+    const d0=P(W.from),dts=[0,1,2,3,4,5,6].map(i=>{const x=new Date(d0);x.setDate(x.getDate()+i);return x});
+    h+='<div class="tiles2"><div class="tile"><span>Standards met</span><b>'+E(T.m)+'<small> / '+E(T.n)+'</small></b></div><div class="tile"><span>Checks</span><b>'+PC(T.p)+'</b><small>'+E(T.a)+' of '+E(T.b)+' checks</small></div></div>';
     const areas=order.filter(a=>hs.some(x=>x.area===a)).concat(hs.map(x=>x.area).filter((a,i,arr)=>arr.indexOf(a)===i&&order.indexOf(a)<0));
-    h+='<section class="card flat"><div class="hsec-h" style="padding:0"><h2>By area</h2></div>'+areas.map(a=>{const sc=score(hs.filter(x=>x.area===a));return '<div class="rarea"><span>'+E(a)+'</span>'+bar(sc.p)+'<b>'+PC(sc.p)+'</b></div>'}).join("")+'</section>';
-    h+=areas.map(a=>{const list=hs.filter(x=>x.area===a),sc=score(list);
-      return '<section class="rsec"><div class="hsec-h"><h2>'+E(a)+'</h2><span>'+E(sc.a)+' of '+E(sc.b)+' checks · '+PC(sc.p)+'</span></div><div class="hlist">'+list.map(row).join("")+'</div></section>'}).join("");
+    const dayRow=(list,label,all)=>'<div class="wg-row wg-pct'+(all?' all':'')+'"><span class="wg-n">'+E(label)+'</span>'+dts.map((dt,i)=>{const n=list.filter(x=>x.days[i]===1).length,p=list.length?n/list.length:0;
+      return '<span class="wg-p'+(p>=1?' full':p===0?' zero':'')+'" title="'+DF[i]+': '+n+' of '+list.length+'">'+Math.round(p*100)+'%</span>'}).join("")+'<span class="wg-c">'+PC(score(list).p)+'</span></div>';
+    h+='<section class="wgrid rgrid2" aria-label="Week '+E(W.w)+' grid"><div class="wg-row wg-h"><span class="wg-n">Habit</span>'+dts.map((dt,i)=>'<span class="wg-d"><small>'+DL[i]+'</small>'+dt.getDate()+'</span>').join("")+'<span class="wg-c">Done</span></div>';
+    areas.forEach(a=>{const list=hs.filter(x=>x.area===a),sc=score(list);
+      h+='<div class="wg-area"><span>'+E(a)+'</span><span>'+E(sc.a)+'/'+E(sc.b)+' checks · '+PC(sc.p)+' · '+E(sc.m)+'/'+E(sc.n)+' met</span></div>';
+      list.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+E(x.name)+'">'+E(x.name)+'</span>'+x.days.map((v,i)=>'<span class="wg-cell"><span class="cell '+(v===1?'d-done':v===2?'d-x':'d-miss')+'" role="img" aria-label="'+E(x.name)+', '+DF[i]+': '+(v===1?'done':v===2?'not done':'not checked')+'">'+(v===1?CK:v===2?'<span class="xm">✕</span>':'')+'</span></span>').join("")+
+        '<span class="wg-c '+(x.done>=x.std?'met':'')+'">'+E(x.done)+'/'+E(x.std)+'</span></div>'});
+      h+=dayRow(list,"Done each day")});
+    if(hs.length)h+=dayRow(hs,"All areas",true);
+    h+='</section>';
     if(!hs.length)h+='<div class="empty">No habits were tracked this week.</div>';
+    else h+='<div class="legend2"><span><i class="dot d-done"></i>Done</span><span><i class="dot d-x"></i>Not done</span><span><i class="dot d-miss"></i>Not checked</span></div>';
     if(d.trend&&d.trend.length)h+='<section class="card flat"><div class="hsec-h" style="padding:0"><h2>Week by week</h2><span>share of checks</span></div><div class="trend">'+weeks.map((x,i)=>{const sc=score(x.habits||[]);return '<button type="button" class="tb'+(i===wi?' cur':'')+'" data-rep="wk" data-i="'+i+'" aria-label="Week '+E(x.w)+': '+PC(sc.p)+'"><b>'+PC(sc.p)+'</b><i style="height:'+Math.max(3,Math.round((sc.p||0)*80))+'px"></i><small>W'+E(x.w)+'</small></button>'}).join("")+'</div></section>';
     const pm=W.pomo||(W.w===d.w?d.pomo:null);
     if(pm&&pm.tot){const hr=c=>{const m=c*(pm.mins||25);return m>=60?(Math.round(m/6)/10)+' h':m+' min'};const r2=o=>'<div class="grow2"><b class="grow">'+E(o.n)+'</b><span>'+E(o.c)+' · '+hr(o.c)+'</span></div>';
