@@ -1013,11 +1013,6 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   const note=D.notes[k];
   if(note||S.noteOpen===k)h+='<div class="daynote"><span class="cap">Day note</span>'+DAYTAGS.map(t=>'<button type="button" class="chip" data-act="daytag" data-k="'+k+'" data-t="'+t+'" aria-pressed="'+(!!note&&note.tag===t)+'">'+t+'</button>').join("")+
     (note?'<input class="inp" id="dn-text" data-k="'+k+'" value="'+esc(note.text||"")+'" placeholder="Details (optional)" aria-label="Day note details">':'')+'</div>';
-  if(filt==="todo"){
-    const ra=routineAreas(M),doneR=ra.find(a=>a.list.filter(x=>!isNum(x)).every(x=>has(k,x.id))),openR=ra.find(a=>{const cb=a.list.filter(x=>!isNum(x));const l=cb.filter(x=>!has(k,x.id)).length;return l>0&&l<cb.length})||ra.find(a=>a.list.filter(x=>!isNum(x)).some(x=>!has(k,x.id)));
-    if(doneR&&S.celebrated!==k+doneR.name){const st=routineStreak(doneR,d);h+='<section class="celebrate" aria-label="Routine complete"><span class="cmark">'+CHECK+'</span><div class="grow"><b>'+esc(doneR.name)+' routine complete</b><span>'+doneR.list.filter(x=>!isNum(x)).length+' of '+doneR.list.filter(x=>!isNum(x)).length+(st>1?' · '+st+' days in a row':'')+'</span></div><button type="button" class="iconbtn" data-act="dismisscele" data-v="'+esc(k+doneR.name)+'" aria-label="Dismiss">×</button></section>'}
-    if(openR){const cb=openR.list.filter(x=>!isNum(x)),dn=cb.filter(x=>has(k,x.id)).length;
-      h+='<section class="routine" aria-label="'+esc(openR.name)+' routine"><div class="grow"><b>'+esc(openR.name)+' routine</b><span class="segs">'+cb.map(x=>'<i class="'+(has(k,x.id)?"on":"")+'"></i>').join("")+'</span><span class="rsub">'+dn+' of '+cb.length+' done</span></div><button type="button" class="btn rbtn" data-act="tickall" data-k="'+k+'" data-a="'+esc(openR.name)+'">Complete all</button></section>'}}
   if(S.undo&&S.undo.k===k)h+='<div class="snack" role="status"><span>Ticked '+esc(S.undo.label)+'</span><button type="button" data-act="undo">Undo</button></div>';
   const sec=(title,sub,list,cls)=>list.length?'<section class="hsec '+(cls||"")+'"><div class="hsec-h"><h2>'+title+'</h2><span>'+sub+'</span></div><div class="hlist">'+list.map(o=>habitRow(o.x,k,w,o.st,o.miss&&o.st.s!=="met",M)).join("")+'</div></section>':'';
   const sticky=S.sticky&&S.sticky.k===k?S.sticky.ids:[];
