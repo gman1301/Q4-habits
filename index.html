@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="industrial">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: phone = one screen at a time with a bottom tab bar; desktop = top nav + wide content column. Navy ledger look carried over from the Q4 sheet. */
 :root{
@@ -672,6 +672,85 @@ body.sheet-open{overflow:hidden}
 .herosub .bad{color:var(--bad)}
 .vseg{display:flex;width:100%}.vseg button{flex:1;white-space:nowrap}
 .verdict{margin:0;padding:10px 14px;border-radius:14px;background:var(--bad-soft);color:var(--bad);font-weight:700;font-size:calc(15px*var(--fs,1))}.verdict.hi{background:var(--soft);color:var(--accent)}
+
+/* ===== Industrial look: charcoal shop floor, safety yellow, square edges, condensed caps, mono numbers ===== */
+html[data-theme="industrial"]{
+  --bg:#17191B; --panel:#222528; --ink:#E8E6E1; --muted:#9A9C9E; --line:#3A3E42; --soft:#2A2E32; --seg:#1D2023;
+  --band:#17191B; --band-ink:#E8E6E1; --accent:#F5C400; --accent-ink:#111111;
+  --today:#FF7A1A; --today-soft:#33241A; --today-ink:#FFB27A;
+  --ok:#3BD16F; --ok-soft:#16301F; --warn:#F5C400; --warn-soft:#332C10; --bad:#FF6B5E; --bad-soft:#36201E; --risk:#FF6B5E;
+  --dot-miss:#3A3E42; --h1:#3C3820; --h2:#6E6020; --h3:#B39312; --h4:#F5C400;
+  --shadow:none; --r:0px;
+  --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --body:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark}
+html[data-theme="industrial"] body{font-size:calc(14px*var(--fs,1));letter-spacing:0}
+html[data-theme="industrial"] .top{border-bottom:1px solid var(--line);padding-top:20px}
+html[data-theme="industrial"] .top::before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:repeating-linear-gradient(-45deg,var(--accent) 0 10px,#17191B 10px 20px)}
+html[data-theme="industrial"] .brand{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--accent)}
+html[data-theme="industrial"] .brand small{font-family:var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+html[data-theme="industrial"] h1,html[data-theme="industrial"] h2,html[data-theme="industrial"] h3,html[data-theme="industrial"] .big,html[data-theme="industrial"] .mid,html[data-theme="industrial"] .herobig,html[data-theme="industrial"] .darkbig b,html[data-theme="industrial"] .hname,html[data-theme="industrial"] .gbig{font-family:var(--display);text-transform:uppercase;letter-spacing:.02em}
+html[data-theme="industrial"] h1,html[data-theme="industrial"] .big{font-weight:700;color:var(--accent)}
+html[data-theme="industrial"] h2,html[data-theme="industrial"] h3{font-weight:700}
+html[data-theme="industrial"] .hname{font-weight:600;font-size:calc(17px*var(--fs,1))}
+html[data-theme="industrial"] .eyebrow,html[data-theme="industrial"] .eyebrow2,html[data-theme="industrial"] .cap,html[data-theme="industrial"] .fld label,html[data-theme="industrial"] legend,html[data-theme="industrial"] .tile>span,html[data-theme="industrial"] .kpi .k,html[data-theme="industrial"] .wg-area,html[data-theme="industrial"] .hsec-h>span,html[data-theme="industrial"] .sess-h{text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--body);font-size:calc(11px*var(--fs,1))}
+html[data-theme="industrial"] .card,html[data-theme="industrial"] .hlist,html[data-theme="industrial"] .tile,html[data-theme="industrial"] .kpi,html[data-theme="industrial"] .hero,html[data-theme="industrial"] .wgrid,html[data-theme="industrial"] .empty,html[data-theme="industrial"] .daynote,html[data-theme="industrial"] .dark,html[data-theme="industrial"] .sheet,html[data-theme="industrial"] .shwrap,html[data-theme="industrial"] .gcard,html[data-theme="industrial"] .hcard2,html[data-theme="industrial"] .ycard,html[data-theme="industrial"] .nudge,html[data-theme="industrial"] .welcome,html[data-theme="industrial"] .sharebox,html[data-theme="industrial"] .sbox,html[data-theme="industrial"] .commit{border:1px solid var(--line);border-radius:0;box-shadow:none}
+html[data-theme="industrial"] .dark{background:var(--panel);color:var(--ink)}html[data-theme="industrial"] .dark .eyebrow.inv{color:var(--muted)}html[data-theme="industrial"] .darkbig b{color:var(--accent)}
+html[data-theme="industrial"] .btn,html[data-theme="industrial"] .chip,html[data-theme="industrial"] .seg,html[data-theme="industrial"] .seg button,html[data-theme="industrial"] .iconbtn,html[data-theme="industrial"] .tag,html[data-theme="industrial"] .pill,html[data-theme="industrial"] .inp,html[data-theme="industrial"] select,html[data-theme="industrial"] textarea,html[data-theme="industrial"] .dayb,html[data-theme="industrial"] .metbtn,html[data-theme="industrial"] .snack,html[data-theme="industrial"] .verdict,html[data-theme="industrial"] .cell,html[data-theme="industrial"] .gc,html[data-theme="industrial"] .wg-pct,html[data-theme="industrial"] .tbar,html[data-theme="industrial"] .lbtn,html[data-theme="industrial"] .why>summary,html[data-theme="industrial"] .why>p,html[data-theme="industrial"] .ins,html[data-theme="industrial"] .gedit,html[data-theme="industrial"] .shsec,html[data-theme="industrial"] .gtrack,html[data-theme="industrial"] .gtrack i,html[data-theme="industrial"] .rbar,html[data-theme="industrial"] .rbar i,html[data-theme="industrial"] .track,html[data-theme="industrial"] .track i,html[data-theme="industrial"] .pg-b,html[data-theme="industrial"] .pg-b i,html[data-theme="industrial"] .bars i,html[data-theme="industrial"] .trend i,html[data-theme="industrial"] .dstrip i{border-radius:0!important}
+html[data-theme="industrial"] .btn{background:transparent;border:1px solid var(--line);color:var(--ink);text-transform:uppercase;letter-spacing:.04em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="industrial"] .btn.primary,html[data-theme="industrial"] .btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="industrial"] .btn.danger{border-color:var(--bad);color:var(--bad);background:transparent}
+html[data-theme="industrial"] .linkbtn{color:var(--accent);text-transform:uppercase;letter-spacing:.04em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="industrial"] .seg{background:transparent;border:1px solid var(--line);padding:2px}
+html[data-theme="industrial"] .seg button{color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+html[data-theme="industrial"] .seg button[aria-pressed="true"],html[data-theme="industrial"] .lbtn[aria-pressed="true"]{background:var(--accent);color:#111;box-shadow:none}
+html[data-theme="industrial"] .chip{background:transparent;border:1px solid var(--line);color:var(--ink)}
+html[data-theme="industrial"] .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="industrial"] .inp,html[data-theme="industrial"] select,html[data-theme="industrial"] textarea{background:#1B1D20;color:var(--ink);border:1px solid var(--line)}
+html[data-theme="industrial"] .inp:focus,html[data-theme="industrial"] select:focus,html[data-theme="industrial"] textarea:focus{border-color:var(--accent);outline:none}
+html[data-theme="industrial"] .tag{background:transparent!important;border:1px solid currentColor;text-transform:uppercase;letter-spacing:.05em;font-size:calc(10px*var(--fs,1));font-weight:600;padding:2px 6px}
+html[data-theme="industrial"] .t-risk{color:var(--bad)!important}html[data-theme="industrial"] .t-plan{color:var(--accent)!important}html[data-theme="industrial"] .t-quiet{color:var(--muted)!important}
+html[data-theme="industrial"] .pill{border-radius:0;text-transform:uppercase;letter-spacing:.04em}
+html[data-theme="industrial"] .tabs{background:var(--bg);border-top:1px solid var(--line);gap:4px;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+html[data-theme="industrial"] .tabs button{border:1px solid var(--line);color:var(--ink);padding:12px 0;text-transform:uppercase;letter-spacing:.05em;font-size:calc(11px*var(--fs,1))}
+html[data-theme="industrial"] .tabs button .ti,html[data-theme="industrial"] .tabs button svg{display:none}
+html[data-theme="industrial"] .tabs button[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="industrial"] .top-nav button{border:1px solid var(--line);border-radius:0;text-transform:uppercase;letter-spacing:.05em}
+html[data-theme="industrial"] .top-nav button[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="industrial"] .gear{border-radius:0;border:1px solid var(--line);background:transparent;color:var(--ink)}
+html[data-theme="industrial"] .gear[aria-current="page"]{background:var(--accent);color:#111;border-color:var(--accent)}
+html[data-theme="industrial"] .dayb{background:transparent;border:1px solid var(--line)}
+html[data-theme="industrial"] .dayb.sel{background:var(--accent);color:#111;border-color:var(--accent)}
+html[data-theme="industrial"] .dayb.istoday:not(.sel){border-color:var(--accent)}
+html[data-theme="industrial"] .dayb .db{border-radius:0}html[data-theme="industrial"] .dayb .db i{background:var(--ok);border-radius:0}html[data-theme="industrial"] .dayb.sel .db i{background:#111}
+html[data-theme="industrial"] .ringtxt b{font-family:var(--display);color:var(--accent)}
+html[data-theme="industrial"] .herobig b{color:var(--accent);font-family:var(--body);font-weight:600}
+html[data-theme="industrial"] .habit.hrow,html[data-theme="industrial"] .hwrap{background:transparent}
+html[data-theme="industrial"] .hrow .chk{border-radius:0;border:2px solid var(--line);background:transparent}
+html[data-theme="industrial"] .hrow .chk[aria-pressed="true"]{background:var(--ok);border-color:var(--ok)}html[data-theme="industrial"] .hrow .chk svg{color:#111}
+html[data-theme="industrial"] .dot{border-radius:0}html[data-theme="industrial"] .dot.d-done,html[data-theme="industrial"] .dots .d-done,html[data-theme="industrial"] .legend2 .d-done{background:var(--ok)}html[data-theme="industrial"] .d-today{border-color:var(--accent)}
+html[data-theme="industrial"] .wgrid .cell{border-radius:0}html[data-theme="industrial"] .wgrid .cell.d-done{background:var(--ok);color:#111}html[data-theme="industrial"] .wgrid .cell.d-today{border-color:var(--accent)}
+html[data-theme="industrial"] .rgrid2 .cell.d-done{background:var(--ok);color:#111}
+html[data-theme="industrial"] .wg-d.td{background:var(--accent);color:#111}html[data-theme="industrial"] .wg-cell.td{background:rgba(245,196,0,.08)}html[data-theme="industrial"] .wg-p.td{background:rgba(245,196,0,.12)}
+html[data-theme="industrial"] .hd.on i{background:var(--ok);border-color:var(--ok)}html[data-theme="industrial"] .hd i{border-radius:0}
+html[data-theme="industrial"] .verdict{background:var(--bad);color:#111;font-family:var(--display);text-transform:uppercase;letter-spacing:.02em;font-size:calc(19px*var(--fs,1));line-height:1.15}
+html[data-theme="industrial"] .verdict.hi{background:var(--accent);color:#111}
+html[data-theme="industrial"] .herobig .judge{font-family:var(--body);text-transform:uppercase;letter-spacing:.04em;font-size:calc(12px*var(--fs,1))}
+html[data-theme="industrial"] .snack{background:var(--accent);color:#111}html[data-theme="industrial"] .snack button{color:#111;text-decoration:underline}
+html[data-theme="industrial"] .nudge{background:var(--panel)}html[data-theme="industrial"] .nudge.warnb{border-color:var(--accent);background:var(--panel)}
+html[data-theme="industrial"] .welcome{border:2px solid var(--accent)}
+html[data-theme="industrial"] .tbar{background:var(--accent);color:#111}html[data-theme="industrial"] .tbar .btn{color:#111;border-color:#111}
+html[data-theme="industrial"] .sheetbg{background:rgba(0,0,0,.6)}
+html[data-theme="industrial"] .xbtn[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:#111}
+html[data-theme="industrial"] .tbtn.on{background:var(--accent);border-color:var(--accent);color:#111}
+html[data-theme="industrial"] .why>summary{border-radius:0!important}
+html[data-theme="industrial"] .score th{text-transform:uppercase;letter-spacing:.06em;font-size:calc(10px*var(--fs,1));color:var(--muted)}
+html[data-theme="industrial"] .msg.ai .cs{border-radius:0}
+html[data-theme="industrial"] .dayb.sel,html[data-theme="industrial"] .dayb.sel.istoday{background:var(--accent)!important;color:#111!important;border-color:var(--accent)!important}
+html[data-theme="industrial"] .wg-d,html[data-theme="industrial"] .wg-d.td{border-radius:0!important}
+html[data-theme="industrial"] .bars i{background:#4A4E52;border-radius:0}html[data-theme="industrial"] .bars i.tdy{background:var(--accent)}html[data-theme="industrial"] .bars i.fut{background:transparent;border:1px dashed var(--line)}
+html[data-theme="industrial"] .vseg button{padding-inline:4px;letter-spacing:0;font-size:calc(11px*var(--fs,1))}
+html[data-theme="industrial"] .seg button{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -866,11 +945,14 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 setInterval(()=>{if(document.visibilityState==="visible"&&!SY.busy)syncNow("pull")},90000);
 
 const UI=(()=>{try{const u=JSON.parse(lsGet("q4habits.ui")||"{}");return Object.assign({},u&&typeof u==="object"?u:{},{open:Array.isArray(u.open)?u.open:[],todayMode:u.todayMode||"priority",hideDone:!!u.hideDone,hideToday:!!u.hideToday,todayFilter:u.todayFilter==="done"?"done":"todo"})}catch(e){return {open:[],todayMode:"priority"}}})();
+const LOOKS=[["industrial","Industrial"],["classic","Classic"]];
+function applyTheme(){const t=(typeof D!=="undefined"&&D.cfg&&D.cfg.theme)||"industrial";if(t==="industrial")document.documentElement.dataset.theme="industrial";else delete document.documentElement.dataset.theme;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",t==="industrial"?"#17191B":"#0F1B33")}
 function saveUI(){lsSet("q4habits.ui",JSON.stringify(UI))}
 /* Text size: every font size in the app is multiplied by --fs, so text grows or shrinks while the layout keeps its shape. Saved per device. */
 const FONTS=[["s","Small",0.9],["m","Default",1],["l","Large",1.15]];
 function applyFont(){const f=FONTS.find(x=>x[0]===UI.fontSize)||FONTS[1];document.documentElement.style.setProperty("--fs",String(f[2]));document.documentElement.dataset.font=f[0]}
-applyFont();
+applyFont();applyTheme();
 const S={view:"today",day:null,week:null,revWeek:null,ai:{busy:false,ctl:null,live:"",error:""},confirm:null,gEdit:null,gOpen:{},gCard:{}};
 const cfg=()=>D.cfg;
 function start(){return pd(cfg().start)}
@@ -1112,7 +1194,7 @@ function render(){const fk=focusKey();renderInner();if(fk){const el=document.que
 const qShort=()=>(cfg().label||"Q4 2026").split(" ")[0];
 function renderInner(){nav();const m=document.getElementById("main");const br=document.querySelector(".brand");if(br&&br.firstChild)br.firstChild.nodeValue=VIEW?"Habits":qShort()+" Habits";
   if(!cfg().habits.length&&S.view!=="setup"&&S.view!=="goals"){m.innerHTML=(SY.conflict?conflictBanner():"")+'<div class="card state"><h2>No habits yet</h2><p class="muted">Add your first habit under Life areas and habits on the Goals tab.</p><p style="margin-top:12px"><button class="btn primary" type="button" data-act="openhabits">Add habits</button></p></div>';return}
-  ensureHist();ensureGoals();const M=model();autoShare(M);
+  ensureHist();ensureGoals();applyTheme();const M=model();autoShare(M);
   if(S.day&&S.day>M.t&&inRange(M.t))S.day=null;
   if(!S.day){const t=M.t;S.day=inRange(t)?t:(t<start()?start():we(W()))}
   if(!S.week)S.week=M.cw||W();
@@ -1690,6 +1772,8 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
   let h='<div><span class="eyebrow">This device</span><h1>Settings</h1></div>';
   {const cur=(FONTS.find(x=>x[0]===UI.fontSize)||FONTS[1])[0];
    h+='<section class="card set"><div class="row"><h2>Text size</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Text size">'+FONTS.map(([v,l])=>'<button type="button" data-act="fsize" data-v="'+v+'" aria-pressed="'+(cur===v)+'"><span class="fs-'+v+'">'+l+'</span></button>').join("")+'</div></div><p class="note">Makes all the text in the app smaller or larger on this device.</p></section>'}
+  {const ct=cfg().theme||"industrial";
+   h+='<section class="card set"><div class="row"><h2>Look</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Look">'+LOOKS.map(([v,l])=>'<button type="button" data-act="look" data-v="'+v+'" aria-pressed="'+(ct===v)+'">'+l+'</button>').join("")+'</div></div><p class="note">Industrial: dark, safety yellow, square edges. Classic: the original light navy look, which follows your phone’s light or dark mode.</p></section>'}
   {const cv=cfg().voice||"honest",V=(VOICES.find(v=>v[0]===cv)||VOICES[1]);
    h+='<section class="card set"><div class="row"><h2>App voice</h2></div><div class="seg vseg" role="group" aria-label="App voice">'+VOICES.map(([v,l])=>'<button type="button" data-act="avoice" data-v="'+v+'" aria-pressed="'+(cv===v)+'">'+l+'</button>').join("")+'</div><p class="note">How Today talks to you about misses: from kind, to plain facts, to harsh, to no filter (swearing). For example: <i>'+esc(V[2].sample)+'</i>. Your coach has its own voice on the Coach tab.</p></section>'}
   h+='<section class="card set"><div><h2>Connect Claude for coaching</h2><p class="note" style="margin-top:4px">Optional. Paste an Anthropic API key to get one-tap coaching on the Coach screen. Create a key at console.anthropic.com under API keys; requests are billed to that account. The key is stored only in this browser and sent only to api.anthropic.com.</p></div>'+
@@ -1734,6 +1818,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="hall"||a==="openhabits"){S.edit=null;S.confirm=null;go("goals");setTimeout(()=>{const el=document.getElementById("areas-ed");if(el)el.scrollIntoView({block:"start"})},40);return}
   if(a==="fsize"){UI.fontSize=b.dataset.v;saveUI();applyFont();render();const f=document.querySelector('[data-act="fsize"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="planskip"){UI.planSkip=Number(b.dataset.w);saveUI();return render()}
+  if(a==="look"){cfg().theme=b.dataset.v;persist();applyTheme();render();const f=document.querySelector('[data-act="look"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="avoice"){cfg().voice=b.dataset.v;persist();render();const f=document.querySelector('[data-act="avoice"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="nudgeok"){cfg().nudgeSeen=SY.nudge;persist();return render()}
   if(a==="tick"){const k=b.dataset.k,id=b.dataset.h;const arr=(D.ticks[k]||[]).slice();const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else{arr.push(id);setMiss(k,id,false)}
