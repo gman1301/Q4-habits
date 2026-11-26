@@ -645,6 +645,7 @@ main{max-width:780px}
 .wg-pct.all{margin-top:8px;background:var(--soft)}.wg-pct.all .wg-n{color:var(--ink)}
 @media (max-width:420px){.wg-p{font-size:10px;letter-spacing:-.02em}}
 .rgrid2 .cell{display:grid;place-items:center}.rgrid2 .cell.d-done svg{opacity:1}.rgrid2 .cell.d-x .xm{font-size:13px}
+.lbtn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding:6px 10px;font-size:13px}.toolrow:has(.lbtn){flex-wrap:nowrap;gap:6px}.toolrow:has(.lbtn) .seg button{padding-inline:10px;white-space:nowrap}@media (max-width:400px){.lbtn svg{display:none}.lbtn{padding:6px 9px}.toolrow:has(.lbtn) .seg button{padding-inline:8px;font-size:13px}}.lbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -1127,8 +1128,8 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   if(w===M.cw)h+=commitCard(M,commitWeek(M),false);
   const doneN=S2.filter(o=>o.on||o.mk).length;
   h+='<div class="toolrow"><div class="seg" role="group" aria-label="Show"><button type="button" data-act="tfilter" data-m="todo" aria-pressed="'+(filt==="todo")+'">To do · '+(tot-doneN)+'</button><button type="button" data-act="tfilter" data-m="done" aria-pressed="'+(filt==="done")+'">Done · '+doneN+'</button></div><span class="spacer"></span>'+
-   '<button type="button" class="iconbtn lg" data-act="opennote" data-k="'+k+'" aria-label="Day note" aria-pressed="'+(!!D.notes[k]||S.noteOpen===k)+'"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 4h11l3 3v13H5z M8.5 11h7M8.5 15h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></button>'+
-   '<button type="button" class="iconbtn lg" data-act="tmode" data-m="'+(mode==="area"?"priority":"area")+'" aria-label="Group by area" aria-pressed="'+(mode==="area")+'"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>';
+   '<button type="button" class="btn sm lbtn" data-act="opennote" data-k="'+k+'" aria-pressed="'+(!!D.notes[k]||S.noteOpen===k)+'"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h11l3 3v13H5z M8.5 11h7M8.5 15h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>Note</button>'+
+   '<button type="button" class="btn sm lbtn" data-act="tmode" data-m="'+(mode==="area"?"priority":"area")+'" aria-pressed="'+(mode==="area")+'"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>By area</button></div>';
   const note=D.notes[k];
   if(note||S.noteOpen===k)h+='<div class="daynote"><span class="cap">Day note</span>'+DAYTAGS.map(t=>'<button type="button" class="chip" data-act="daytag" data-k="'+k+'" data-t="'+t+'" aria-pressed="'+(!!note&&note.tag===t)+'">'+t+'</button>').join("")+
     (note?'<input class="inp" id="dn-text" data-k="'+k+'" value="'+esc(note.text||"")+'" placeholder="Details (optional)" aria-label="Day note details">':'')+'</div>';
