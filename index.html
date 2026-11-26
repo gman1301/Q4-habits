@@ -1110,7 +1110,7 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   const vis=o=>filt==="done"?(o.on||o.mk):(!(o.on||o.mk)||sticky.indexOf(o.x.id)>=0);
   if(mode==="area"){
     h+=M.areas.map(a=>{const list=S2.filter(o=>o.x.area===a.name&&vis(o));if(!list.length)return "";const rt=routineAreas(M).some(r=>r.name===a.name)?routineChips({areas:[a]},k)[0]:"";
-      return '<section class="hsec"><div class="hsec-h"><h2>'+esc(a.name)+'</h2><span>'+pct(wkScore(a.list,w))+' this week</span><span class="spacer"></span>'+rt+'</div><div class="hlist">'+list.map(o=>habitRow(o.x,k,w,o.st,o.miss&&o.st.s!=="met",M)).join("")+'</div></section>'}).join("")||'<div class="empty">'+(filt==="done"?"Nothing ticked yet.":"All done for "+(isT?"today":"that day")+".")+'</div>';
+      return '<section class="hsec"><div class="hsec-h"><h2>'+esc(a.name)+'</h2><span>'+pct(wkChecks(a.list,w).p)+' this week</span><span class="spacer"></span>'+rt+'</div><div class="hlist">'+list.map(o=>habitRow(o.x,k,w,o.st,o.miss&&o.st.s!=="met",M)).join("")+'</div></section>'}).join("")||'<div class="empty">'+(filt==="done"?"Nothing ticked yet.":"All done for "+(isT?"today":"that day")+".")+'</div>';
   }else if(filt==="done"){
     h+=sec("Done "+(isT?"today":"that day"),doneN+" checked off · tap to undo",S2.filter(o=>o.on||o.mk))||'<div class="empty">Nothing ticked yet. Your ticks will collect here.</div>';
   }else{
@@ -1134,12 +1134,12 @@ function planRows(M,w){const fl=M.hs.filter(flexible);
      DAYN.map((dn,di)=>'<button type="button" class="chip pday" data-act="plan" data-w="'+w+'" data-h="'+esc(x.id)+'" data-d="'+di+'" aria-pressed="'+(p.indexOf(di)>=0)+'" aria-label="'+esc(x.name)+' on '+dn+'">'+dn.slice(0,2)+'</button>').join("")+'</div></div>'}).join("")+'</div>'}
 function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.push(add(ws(w),i));
   const canPlan=w>=(M.cw||1)&&M.hs.some(x=>x.std>0),plan=canPlan&&S.weekMode==="plan",hide=UI.hideDone;
-  const isDone=x=>x.std>0&&x.done[w-1]>=x.std,nDone=M.hs.filter(isDone).length,nStd=M.hs.filter(x=>x.std).length;
+  const isDone=x=>x.sw[w-1]>0&&x.done[w-1]>=x.sw[w-1],nDone=M.hs.filter(isDone).length,nStd=M.hs.filter(x=>x.sw[w-1]>0).length;
   const di=w===M.cw&&M.t>=ws(w)?Math.round((M.t-ws(w))/DAY)+1:null;
   let h='<div class="whead"><button class="iconbtn lg" type="button" data-act="week" data-d="-1" aria-label="Previous week"'+(w<=1?" disabled":"")+'><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'+
    '<div class="grow center"><h1 class="mid">Week '+w+'</h1><div class="sub">'+md(ws(w))+' – '+md(we(w))+' · '+(di?'day '+di+' of 7':we(w)<M.t?'finished':'upcoming')+'</div>'+(w!==M.cw&&M.cw?'<button class="linkbtn" type="button" data-act="thisweek">Back to this week</button>':'')+'</div>'+
    '<button class="iconbtn lg" type="button" data-act="week" data-d="1" aria-label="Next week"'+(w>=M.N?" disabled":"")+'><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>';
-  let best=0,a=0,b=0;M.hs.forEach(x=>{if(!x.std)return;const dn=x.done[w-1];a+=Math.min(dn,x.std);b+=x.std;let open=0;for(let i=0;i<7;i++){const dt=add(ws(w),i);if(dt>=M.t&&!has(key(dt),x.id))open++}best+=Math.min(x.std,dn+open)});
+  let best=0,a=0,b=0;M.hs.forEach(x=>{const sd=x.sw[w-1];if(!(sd>0))return;const dn=x.done[w-1];a+=Math.min(dn,sd);b+=sd;let open=0;for(let i=0;i<7;i++){const dt=add(ws(w),i);if(dt>=M.t&&!has(key(dt),x.id))open++}best+=Math.min(sd,dn+open)});
   h+='<div class="tiles2"><div class="tile"><span>Standards met</span><b>'+nDone+'<small> / '+nStd+'</small></b></div><div class="tile"><span>'+(di?'Score so far':'Week score')+'</span><b>'+pct(b?a/b:null)+'</b>'+(di?'<small class="best">best case '+pct(b?best/b:null)+'</small>':'')+'</div></div>';
   h+='<div class="toolrow">'+(canPlan?'<div class="seg" role="group" aria-label="Week mode"><button type="button" data-act="wmode" data-m="track" aria-pressed="'+!plan+'">Track</button><button type="button" data-act="wmode" data-m="plan" aria-pressed="'+plan+'">Plan</button></div>':'')+'<span class="spacer"></span>'+
    (plan?(D.plans[w-1]&&Object.keys(D.plans[w-1]).length?'<button type="button" class="chip" data-act="copyplan" data-w="'+w+'">Copy last week</button>':''):'<button type="button" class="chip" data-act="hidedone" aria-pressed="'+hide+'">'+(hide?"Showing unmet · "+nDone+" hidden":"Hide met")+'</button>')+'</div>';
@@ -1151,13 +1151,13 @@ function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.pus
   const word={"d-done":"done","d-x":"marked not done","d-miss":"missed","d-today":"today","d-todayplan":"planned today","d-plan":"planned","d-future":"not yet"};
   h+='<section class="wgrid" aria-label="Week '+w+' grid"><div class="wg-row wg-h"><span class="wg-n">Habit</span>'+days.map((dt,i)=>'<span class="wg-d'+(key(dt)===t?" td":"")+'"><small>'+DN[i]+'</small>'+dt.getDate()+'</span>').join("")+'<span class="wg-c">Done</span></div>';
   M.areas.forEach(ar=>{const shown=hide?ar.list.filter(x=>!isDone(x)):ar.list;if(!shown.length)return;const hid=ar.list.length-shown.length;
-    h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+pct(wkScore(ar.list,w))+'</span></div>';
+    h+='<div class="wg-area"><span>'+esc(ar.name)+(hid?' · '+hid+' met, hidden':'')+'</span><span>'+(c=>c.b?c.a+'/'+c.b+' · '+pct(c.p):'–')(wkChecks(ar.list,w))+'</span></div>';
     shown.forEach(x=>{h+='<div class="wg-row"><span class="wg-n" title="'+esc(x.name)+'">'+esc(x.name)+'</span>'+days.map((dt,i)=>{const k=key(dt),on=has(k,x.id),pl=isPlanned(x,w,i),dis=!inRange(dt);
         const xm=!on&&isMiss(k,x.id),st=on?"d-done":xm?"d-x":k===t?(pl?"d-todayplan":"d-today"):dt<M.t?"d-miss":pl?"d-plan":"d-future";
         const lab=esc(x.name)+', '+esc(fmt(dt,{weekday:"long",month:"short",day:"numeric"}))+': '+word[st];
         if(isNum(x))return '<span class="wg-cell'+(k===t?" td":"")+'"><input class="cell numcell '+st+(on?" met":"")+(pl&&!on?" plan":"")+'" type="number" inputmode="decimal" min="0" step="any" data-nv="1" data-k="'+k+'" data-h="'+esc(x.id)+'" value="'+nf(val(k,x.id))+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'></span>';
         return '<span class="wg-cell'+(k===t?" td":"")+'"><button type="button" class="cell '+st+(pl&&!on?" plan":"")+'" data-act="tick" data-cyc="1" data-k="'+k+'" data-h="'+esc(x.id)+'" aria-pressed="'+on+'" aria-label="'+lab+'"'+(dis?" disabled":"")+'>'+(xm?'<span class="xm">✕</span>':CHECK)+'</button></span>'}).join("")+
-        '<span class="wg-c '+(isDone(x)?"met":"")+'">'+(x.std?x.done[w-1]+'/'+x.std:x.done[w-1])+'</span></div>'})});
+        '<span class="wg-c '+(isDone(x)?"met":"")+'">'+(x.sw[w-1]>0?x.done[w-1]+'/'+x.sw[w-1]:x.sw[w-1]==null?'–':x.done[w-1])+'</span></div>'})});
   h+='</section><p class="hint">Tap a box once for done, twice for not done, three times to clear.</p><div class="legend2"><span><i class="dot d-done"></i>Done</span><span><i class="dot d-miss"></i>Missed</span><span><i class="dot d-x"></i>Not done</span><span><i class="dot d-plan"></i>Planned</span><span><i class="sq"></i>Today</span></div>';
   return h}
 
@@ -1194,7 +1194,7 @@ function vDash(M){const tab=S.ptab||"week";
     const sk=stuckList(M);
     if(sk.length)h+='<section class="hsec"><div class="hsec-h"><h2>Make it easier</h2><span>'+sk.length+' suggestion'+(sk.length===1?"":"s")+'</span></div><div class="hlist">'+sk.slice(0,S.allStuck?99:3).map(r=>'<div class="stk2"><div class="grow"><b>'+esc(r.h.name)+'</b><span>'+r.last[0]+' then '+r.last[1]+' of '+r.h.std+' in the last two weeks</span></div><button class="btn sm soft" type="button" data-act="resize" data-h="'+esc(r.h.id)+'" data-n="'+r.sug+'">Try '+r.sug+' a week</button><button class="linkbtn" type="button" data-act="keepstd" data-h="'+esc(r.h.id)+'" aria-label="Keep '+esc(r.h.name)+' at '+r.h.std+'">Keep</button></div>').join("")+'</div>'+(sk.length>3&&!S.allStuck?'<button class="linkbtn" type="button" data-act="allstuck">Show '+(sk.length-3)+' more</button>':'')+'</section>';
     h+=pomoCard(M);
-    h+='<section class="hsec"><div class="hsec-h"><h2>Life areas</h2><span>this week</span></div><div class="hlist pad">'+M.areas.map(ar=>{const v=wkScore(ar.list,w);return '<div class="arow2"><span>'+esc(ar.name)+'</span><span class="track"><i style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></i></span><b>'+pct(v)+'</b></div>'}).join("")+'</div></section>';
+    h+='<section class="hsec"><div class="hsec-h"><h2>Life areas</h2><span>this week</span></div><div class="hlist pad">'+M.areas.map(ar=>{const v=wkChecks(ar.list,w).p;return '<div class="arow2"><span>'+esc(ar.name)+'</span><span class="track"><i style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></i></span><b>'+pct(v)+'</b></div>'}).join("")+'</div></section>';
     return h}
   const sorted=M.areas.filter(a=>a.p!=null).slice().sort((p,q)=>q.p-p.p);
   const left=Math.max(0,Math.round((we(M.N)-M.t)/DAY));
@@ -1316,6 +1316,8 @@ function weekdayRates(M,list){const r=[0,0,0,0,0,0,0],n=[0,0,0,0,0,0,0];
 function defaultRWeek(M){if(!M.cw)return M.N;const sun=key(M.t)===key(we(M.cw));return sun||M.cw===1?M.cw:M.cw-1}
 function rweek(M,mode){if(mode==="midweek")return M.cw||M.N;const top=M.cw||M.N,w=S.coachWeek||defaultRWeek(M);return Math.min(Math.max(1,w),top)}
 function targetWeek(M,R){if(!M.cw)return null;return R>=M.cw?commitWeek(M):M.cw}
+/* Check-based week score: every check counts toward the habit's standard for that week (capped at the standard). */
+function wkChecks(list,w){let a=0,b=0;list.forEach(h=>{const s=h.sw?h.sw[w-1]:h.std;if(s>0){a+=Math.min(h.done[w-1],s);b+=s}});return {a,b,p:b?a/b:null}}
 function wkScore(list,w){let a=0,b=0;list.forEach(h=>{const s=h.sw?h.sw[w-1]:h.std;if(s>0){b++;if(h.done[w-1]>=s)a++}});return b?a/b:null}
 const wkDates=w=>md(ws(w))+" - "+md(we(w));
 function dataMsg(M,R,mode){const L=[],cw=M.cw,P=pace(M),T=targetWeek(M,R),done=we(R)<M.t;
