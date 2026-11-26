@@ -671,6 +671,7 @@ body.sheet-open{overflow:hidden}
 .herobig .judge{display:block;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--bad);margin-top:2px}.herobig .judge.hi{color:var(--accent)}
 .herosub .bad{color:var(--bad)}
 .vseg{display:flex;width:100%}.vseg button{flex:1;white-space:nowrap}
+.verdict{margin:0;padding:10px 14px;border-radius:14px;background:var(--bad-soft);color:var(--bad);font-weight:700;font-size:calc(15px*var(--fs,1))}.verdict.hi{background:var(--soft);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -949,7 +950,7 @@ function stopTimer(done){const tm=S.timer,rest=Number(cfg().rest)||0;
   if(done&&tm&&tm.phase!=="rest"&&rest>0){S.timer={id:tm.id,k:tm.k,phase:"rest",end:Date.now()+rest*60000};storeTimer()}
   else{clearInterval(S.tInt);S.tInt=null;S.timer=null;storeTimer()}
   if(done&&tm){chime();if(tm.phase==="rest")toast("Break over. Ready for the next one?");
-    else{const h=hab(tm.id);if(h){if(isPomoNum(h))setVal(tm.k,h.id,(val(tm.k,h.id)||0)+1);else setPomo(tm.k,h,pval(tm.k,h)+1);persist();toast("Pomodoro logged on "+h.name+(rest>0?". Break time.":"."))}}}
+    else{const h=hab(tm.id);if(h){if(isPomoNum(h))setVal(tm.k,h.id,(val(tm.k,h.id)||0)+1);else setPomo(tm.k,h,pval(tm.k,h)+1);persist();toast(vsay(rest>0?"pomo":"pomoNoRest",h.name))}}}
   safeRender()}
 function tickTimer(){if(!S.timer)return;const left=S.timer.end-Date.now();if(left<=0)return stopTimer(true);document.querySelectorAll(".ptime").forEach(el=>{el.textContent=fmtT(left)})}
 function chime(){try{const C=window.AudioContext||window.webkitAudioContext;if(C){const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+1.2);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+1.2)}}catch(e){}
@@ -1162,6 +1163,10 @@ const VOICES=[
  ["honest","Honest",{miss:"Missed yesterday",due:"No slack",dueRisk:true,out:"Out of reach",risk:"at risk",judgeLow:"",judgeHigh:"",done:"All done for today.",sample:"Missed yesterday · 18 at risk"}],
  ["harsh","Harsh",{miss:"Skipped yesterday",due:"Do it or fail the week",dueRisk:true,out:"Week failed",risk:"about to fail",judgeLow:"Not good enough.",judgeHigh:"On track. Keep going.",done:"All done. Do it again tomorrow.",sample:"Week failed · Not good enough"}],
  ["nofilter","No filter",{miss:"Skipped this shit yesterday",due:"Do it today or the week's fucked",dueRisk:true,out:"Week's blown",risk:"about to blow it",judgeLow:"That's fucking weak.",judgeHigh:"Solid. Don't fuck it up.",done:"All done. Don't get cocky.",sample:"Week's blown · That's fucking weak"}]];
+const VOICE_MORE={"kind": {"tick": "Nice, {h} done", "hit": "{h}: target hit for the week. Well done", "miss": "Marked not done. Tomorrow’s a fresh start", "pomo": "Pomodoro done on {h}. Enjoy the break", "pomoNoRest": "Pomodoro done on {h}. Nice focus", "weekHi": "Lovely week so far. Keep it gentle and steady.", "weekLo": "Every day you tick counts. One more today helps.", "weekDoneHi": "A strong week. Be proud of it.", "weekDoneLo": "Not your best week, and that’s OK. Next week is a fresh start.", "revHi": "Strong week. Note what made it work.", "revLo": "Tough week. Be kind to yourself and pick one thing to change.", "calm": "Everything is on track."}, "honest": {"tick": "Ticked {h}", "hit": "{h}: target hit for the week", "miss": "Marked not done", "pomo": "Pomodoro logged on {h}. Break time", "pomoNoRest": "Pomodoro logged on {h}", "weekHi": "", "weekLo": "", "weekDoneHi": "", "weekDoneLo": "", "revHi": "", "revLo": "", "calm": "Every habit is on pace."}, "harsh": {"tick": "{h} done. About time", "hit": "{h}: target hit. Now keep it", "miss": "Marked not done. Own it", "pomo": "Pomodoro logged on {h}. Short break, then back at it", "pomoNoRest": "Pomodoro logged on {h}. Next one", "weekHi": "On track. Don’t coast.", "weekLo": "Behind. Stop planning and start doing.", "weekDoneHi": "Good week. Now do it again.", "weekDoneLo": "You fell short this week. Fix it.", "revHi": "Good week. Don’t get comfortable.", "revLo": "You fell short. Name the excuse and kill it.", "calm": "Nothing at risk. Don’t get lazy."}, "nofilter": {"tick": "{h} done. Fucking finally", "hit": "{h}: target hit. Hell yes", "miss": "Marked not done. Shit happens, don’t make it a habit", "pomo": "Pomodoro done on {h}. Take five, you earned it", "pomoNoRest": "Pomodoro done on {h}. Keep fucking going", "weekHi": "Solid week so far. Don’t fuck it up.", "weekLo": "This week’s a mess. Get your shit together.", "weekDoneHi": "Damn good week. Do it again.", "weekDoneLo": "Rough fucking week. Fix it.", "revHi": "Damn good week. Don’t fuck up the next one.", "revLo": "Rough fucking week. What’s the excuse, and why does it beat your goals?", "calm": "Nothing at risk. Don’t get cocky."}};
+/* vsay(key, habitName): a line in the current voice, with {h} replaced by the habit name. */
+function vsay(k,h){const v=VOICE_MORE[cfg().voice||"honest"]||VOICE_MORE.honest;return String(v[k]||VOICE_MORE.honest[k]||"").replace("{h}",h||"")}
+function vverdict(p,done,pre){if(p==null)return "";const hi=p>=cfg().on,t=vsay(pre+(done?"Done":"")+(hi?"Hi":"Lo"));return t?'<p class="verdict'+(hi?' hi':'')+'">'+esc(t)+'</p>':""}
 function voice(){return (VOICES.find(v=>v[0]===(cfg().voice||"honest"))||VOICES[1])[2]}
 function rowTag(x,stt,miss,mk){if(mk)return '<span class="tag t-quiet">Not done</span>';const V=voice();
   if(miss&&V.miss)return '<span class="tag t-risk">'+esc(V.miss)+'</span>';if(!stt)return "";
@@ -1218,7 +1223,7 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   const note=D.notes[k];
   if(note||S.noteOpen===k)h+='<div class="daynote"><span class="cap">Day note</span>'+DAYTAGS.map(t=>'<button type="button" class="chip" data-act="daytag" data-k="'+k+'" data-t="'+t+'" aria-pressed="'+(!!note&&note.tag===t)+'">'+t+'</button>').join("")+
     (note?'<input class="inp" id="dn-text" data-k="'+k+'" value="'+esc(note.text||"")+'" placeholder="Details (optional)" aria-label="Day note details">':'')+'</div>';
-  if(S.undo&&S.undo.k===k)h+='<div class="snack" role="status"><span>Ticked '+esc(S.undo.label)+'</span><button type="button" data-act="undo">Undo</button></div>';
+  if(S.undo&&S.undo.k===k)h+='<div class="snack" role="status"><span>'+esc(S.undo.msg||("Ticked "+S.undo.label))+'</span><button type="button" data-act="undo">Undo</button></div>';
   const sec=(title,sub,list,cls)=>list.length?'<section class="hsec '+(cls||"")+'"><div class="hsec-h"><h2>'+title+'</h2><span>'+sub+'</span></div><div class="hlist">'+list.map(o=>habitRow(o.x,k,w,o.st,o.miss&&o.st.s!=="met",M)).join("")+'</div></section>':'';
   const sticky=S.sticky&&S.sticky.k===k?S.sticky.ids:[];
   const vis=o=>filt==="done"?(o.on||o.mk):(!(o.on||o.mk)||sticky.indexOf(o.x.id)>=0);
@@ -1256,7 +1261,7 @@ function vWeek(M){const w=S.week,t=key(M.t),days=[];for(let i=0;i<7;i++)days.pus
    '<div class="grow center"><h1 class="mid">Week '+w+'</h1><div class="sub">'+md(ws(w))+' – '+md(we(w))+' · '+(di?'day '+di+' of 7':we(w)<M.t?'finished':'upcoming')+'</div>'+(w!==M.cw&&M.cw?'<button class="linkbtn" type="button" data-act="thisweek">Back to this week</button>':'')+'</div>'+
    '<button class="iconbtn lg" type="button" data-act="week" data-d="1" aria-label="Next week"'+(w>=M.N?" disabled":"")+'><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>';
   let best=0,a=0,b=0;M.hs.forEach(x=>{const sd=x.sw[w-1];if(!(sd>0))return;const dn=x.done[w-1];a+=Math.min(dn,sd);b+=sd;let open=0;for(let i=0;i<7;i++){const dt=add(ws(w),i);if(dt>=M.t&&!has(key(dt),x.id))open++}best+=Math.min(sd,dn+open)});
-  h+='<div class="tiles2"><div class="tile"><span>Targets hit'+why()+'</span><b>'+nDone+'<small> / '+nStd+'</small></b></div><div class="tile"><span>'+(di?'Days done so far':'Days done')+'</span><b>'+pct(b?a/b:null)+'</b>'+(di?'<small class="best">best case '+pct(b?best/b:null)+'</small>':'')+'</div></div>';
+  h+='<div class="tiles2"><div class="tile"><span>Targets hit'+why()+'</span><b>'+nDone+'<small> / '+nStd+'</small></b></div><div class="tile"><span>'+(di?'Days done so far':'Days done')+'</span><b>'+pct(b?a/b:null)+'</b>'+(di?'<small class="best">best case '+pct(b?best/b:null)+'</small>':'')+'</div></div>'+vverdict(b?a/b:null,we(w)<M.t,"week");
   h+='<div class="toolrow">'+(canPlan?'<div class="seg" role="group" aria-label="Week mode"><button type="button" data-act="wmode" data-m="track" aria-pressed="'+!plan+'">Track</button><button type="button" data-act="wmode" data-m="plan" aria-pressed="'+plan+'">Plan</button></div>':'')+'<span class="spacer"></span>'+
    (plan?(D.plans[w-1]&&Object.keys(D.plans[w-1]).length?'<button type="button" class="chip" data-act="copyplan" data-w="'+w+'">Copy last week</button>':''):'<button type="button" class="chip" data-act="hidedone" aria-pressed="'+hide+'">'+(hide?"Showing unmet · "+nDone+" hidden":"Hide met")+'</button>')+'</div>';
   if(plan){const fx=D.focus[w]||[];
@@ -1316,7 +1321,7 @@ function vDash(M){const tab=S.ptab||"week";
      '<div class="trio"><div><b>'+pct(b?a/b:null)+'</b><span>days done so far</span></div><div><b class="gold">'+(el>=3?pct(b?rate/b:null):"–")+'</b><span>'+(el>=3?"at this pace":"pace from day 3")+'</span></div><div><b>'+pct(b?best/b:null)+'</b><span>best case</span></div></div></section>';
     const att=rows.filter(r=>r.rank<=1),showAll=!!S.allPace,list=showAll?rows:att.slice(0,4);
     h+='<section class="hsec"><div class="hsec-h"><h2>'+(showAll?"All habits this week":"Needs attention")+'</h2><span>'+(showAll?"":att.length?att.length+" habit"+(att.length===1?"":"s"):"nothing at risk")+'</span><span class="spacer"></span><button class="linkbtn" type="button" data-act="allpace">'+(showAll?"Show fewer":"All "+rows.length+" habits")+'</button></div>'+
-     (list.length?'<div class="hlist">'+list.map(r=>'<div class="prog"><span class="pg-n">'+esc(r.x.name)+'</span><span class="pg-c">'+r.dn+'/'+r.x.std+'</span><span class="pg-b"><i style="width:'+Math.max(3,Math.min(100,Math.round(r.dn/r.x.std*100)))+'%" class="r'+r.rank+'"></i></span><span class="pg-t r'+r.rank+'">'+esc(r.rank===3?"Met":r.st.s==="out"?"Target missed":r.x.std===7?"Daily":r.st.need+" in "+r.st.avail+" day"+(r.st.avail===1?"":"s"))+'</span></div>').join("")+'</div>':'<div class="empty">Every habit is on pace. Nice.</div>')+'</section>';
+     (list.length?'<div class="hlist">'+list.map(r=>'<div class="prog"><span class="pg-n">'+esc(r.x.name)+'</span><span class="pg-c">'+r.dn+'/'+r.x.std+'</span><span class="pg-b"><i style="width:'+Math.max(3,Math.min(100,Math.round(r.dn/r.x.std*100)))+'%" class="r'+r.rank+'"></i></span><span class="pg-t r'+r.rank+'">'+esc(r.rank===3?"Met":r.st.s==="out"?"Target missed":r.x.std===7?"Daily":r.st.need+" in "+r.st.avail+" day"+(r.st.avail===1?"":"s"))+'</span></div>').join("")+'</div>':'<div class="empty">'+esc(vsay("calm"))+'</div>')+'</section>';
     const sk=stuckList(M);
     if(sk.length)h+='<section class="hsec"><div class="hsec-h"><h2>Make it easier</h2><span>'+sk.length+' suggestion'+(sk.length===1?"":"s")+'</span></div><div class="hlist">'+sk.slice(0,S.allStuck?99:3).map(r=>'<div class="stk2"><div class="grow"><b>'+esc(r.h.name)+'</b><span>'+r.last[0]+' then '+r.last[1]+' of '+r.h.std+' in the last two weeks</span></div><button class="btn sm soft" type="button" data-act="resize" data-h="'+esc(r.h.id)+'" data-n="'+r.sug+'">Try '+r.sug+' a week</button><button class="linkbtn" type="button" data-act="keepstd" data-h="'+esc(r.h.id)+'" aria-label="Keep '+esc(r.h.name)+' at '+r.h.std+'">Keep</button></div>').join("")+'</div>'+(sk.length>3&&!S.allStuck?'<button class="linkbtn" type="button" data-act="allstuck">Show '+(sk.length-3)+' more</button>':'')+'</section>';
     h+=pomoCard(M);
@@ -1593,6 +1598,7 @@ function vReview(M){const w=S.revWeek,r=D.reviews[String(w)]||{},v=M.overallWeek
   const ar=M.areas.map(a=>({n:a.name,v:a.weeks[w-1]})).filter(a=>a.v!=null).sort((a,b)=>b.v-a.v);
   let h='<div class="datebar"><button class="iconbtn" type="button" data-act="rweek" data-d="-1" aria-label="Previous week"'+(w<=1?" disabled":"")+'>‹</button><div class="lbl"><span class="eyebrow">Sunday review · week '+w+'</span><b>'+md(ws(w))+' – '+md(we(w))+'</b></div><button class="iconbtn" type="button" data-act="rweek" data-d="1" aria-label="Next week"'+(w>=M.N?" disabled":"")+'>›</button></div>';
   const wc=wkChecks(M.hs,w),wm=M.wkMet(M.hs,w);
+  h+=vverdict(wc.p,false,"rev");
   h+='<div class="kpis">'+kpi("Days done",'<span class="t-'+st(wc.p)+'">'+pct(wc.p)+'</span>',wc.a+" of "+wc.b+" days"+(we(w)>M.t?" so far":""))+kpi("Targets hit",'<span class="t-'+st(wm.p)+'">'+wm.a+'<span class="muted" style="font-size:calc(16px*var(--fs,1))"> / '+wm.b+'</span></span>',we(w)>M.t?"Week still in progress":"Habits that hit their weekly target")+
    kpi("Change vs week before",v!=null&&pv!=null?'<span class="'+(v-pv>0?"t-ok":v-pv<0?"t-bad":"")+'">'+pts(v-pv)+'</span>':"–","")+
    kpi("Best area",'<span class="sm">'+esc(ar[0]?ar[0].n:"–")+'</span>',ar[0]?pct(ar[0].v):"",true)+
@@ -1716,7 +1722,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(b.dataset.nav)return go(b.dataset.nav);const a=b.dataset.act;
   if(a==="tick"&&b.dataset.cyc){const k=b.dataset.k,id=b.dataset.h;if(has(k,id)){setTick(k,id,false);setMiss(k,id,true)}else if(isMiss(k,id))setMiss(k,id,false);else setTick(k,id,true);persist();render();
     const again=document.querySelector('[data-act="tick"][data-k="'+k+'"][data-h="'+CSS.escape(id)+'"]');if(again)again.focus({preventScroll:true});return}
-  if(a==="miss"){const k=b.dataset.k,id=b.dataset.h,on=!(isMiss(k,id)&&!has(k,id));keepRow(k,id);if(on){const hh=hab(id);if(isNum(hh))setVal(k,id,null);setTick(k,id,false)}setMiss(k,id,on);persist();toast(on?"Marked not done":"Mark cleared");return render()}
+  if(a==="miss"){const k=b.dataset.k,id=b.dataset.h,on=!(isMiss(k,id)&&!has(k,id));keepRow(k,id);if(on){const hh=hab(id);if(isNum(hh))setVal(k,id,null);setTick(k,id,false)}setMiss(k,id,on);persist();toast(on?vsay("miss"):"Mark cleared");return render()}
   if(a==="pstep"){const k=b.dataset.k,h=hab(b.dataset.h);if(!h)return;keepRow(k,h.id);setPomo(k,h,pval(k,h)+Number(b.dataset.d));persist();render();
     const again=document.querySelector('[data-act="pstep"][data-k="'+k+'"][data-h="'+CSS.escape(h.id)+'"][data-d="'+b.dataset.d+'"]');if(again&&!again.disabled)again.focus({preventScroll:true});return}
   if(a==="ptimer"){if(S.timer&&S.timer.id===b.dataset.h)stopTimer(false);else{startTimer(b.dataset.h,b.dataset.k);render()}return}
@@ -1731,8 +1737,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="avoice"){cfg().voice=b.dataset.v;persist();render();const f=document.querySelector('[data-act="avoice"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="nudgeok"){cfg().nudgeSeen=SY.nudge;persist();return render()}
   if(a==="tick"){const k=b.dataset.k,id=b.dataset.h;const arr=(D.ticks[k]||[]).slice();const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else{arr.push(id);setMiss(k,id,false)}
-    if(i<0&&S.view==="today"){const hh=hab(id);S.undo={k,ids:[id],label:hh?hh.name:"habit"};armUndo()}
-    if(arr.length)D.ticks[k]=arr;else delete D.ticks[k];persist();render();
+    if(arr.length)D.ticks[k]=arr;else delete D.ticks[k];
+    if(i<0&&S.view==="today"){const hh=hab(id),w=weekOf(pd(k)),mm=model(),hx=mm.hs.find(x=>x.id===id);const hit=!!(hx&&hx.std>0&&hx.done[w-1]===hx.std);S.undo={k,ids:[id],label:hh?hh.name:"habit",msg:vsay(hit?"hit":"tick",hh?hh.name:"habit")};armUndo()}
+    persist();render();
     const again=document.querySelector('[data-act="tick"][data-k="'+k+'"][data-h="'+CSS.escape(id)+'"]');if(again)again.focus({preventScroll:true});return}
   if(a==="doconvert"){const h=cfg().habits[Number(b.dataset.i)],n=Number(document.getElementById("cv-target").value);
     if(!(n>0&&isFinite(n))){document.getElementById("cv-target").focus();return toast("Enter a daily target above zero")}
