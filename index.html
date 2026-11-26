@@ -668,6 +668,9 @@ body.sheet-open{overflow:hidden}
 .herotxt .linkbtn{margin-top:6px;padding:0;font-size:calc(13px*var(--fs,1))}
 .why{display:inline-block;position:relative;margin-left:6px;vertical-align:middle}.why>summary{list-style:none;display:inline-grid;place-items:center;width:18px;height:18px;border-radius:9px;border:1.5px solid currentColor;font-size:calc(11px*var(--fs,1));font-weight:800;cursor:pointer;opacity:.7;text-transform:none;letter-spacing:0}.why>summary::-webkit-details-marker{display:none}
 .why[open]>p{position:fixed;z-index:70;left:16px;right:16px;margin-top:8px!important;max-width:420px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgba(15,27,51,.18);font-size:calc(13px*var(--fs,1));font-weight:500;line-height:1.45;text-transform:none;letter-spacing:0;margin:0}
+.herobig .judge{display:block;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--bad);margin-top:2px}.herobig .judge.hi{color:var(--accent)}
+.herosub .bad{color:var(--bad)}
+.vseg{display:flex;width:100%}.vseg button{flex:1;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1153,8 +1156,17 @@ function weekCounts(M){const r={met:0,pace:0,risk:0,n:0,last:null,lastN:0};if(!M
 function dotRow(h,w,selK,t){let s="";for(let i=0;i<7;i++){const dt=add(ws(w),i),k=key(dt),on=has(k,h.id),pl=isPlanned(h,w,i);
     let c=on?"d-done":isMiss(k,h.id)?"d-x":k===selK?(pl?"d-todayplan":"d-today"):dt<t?"d-miss":pl?"d-plan":"d-future";s+='<span class="dot '+c+'"></span>'}
   return '<span class="dots" aria-hidden="true">'+s+'</span>'}
-function rowTag(x,stt,miss,mk){if(mk)return '<span class="tag t-quiet">Not done</span>';if(!stt)return "";
-  if(stt.s==="due"&&x.std<7)return '<span class="tag t-plan">Needed today</span>';if(stt.s==="planned")return '<span class="tag t-plan">Planned</span>';
+/* App voice: how Today talks to you, from kind to no filter. Saved with your data, so every device matches. */
+const VOICES=[
+ ["kind","Kind",{miss:"",due:"Needed today",dueRisk:false,out:"",risk:"",judgeLow:"",judgeHigh:"",done:"All done for today.",sample:"4 can hit their target today"}],
+ ["honest","Honest",{miss:"Missed yesterday",due:"No slack",dueRisk:true,out:"Out of reach",risk:"at risk",judgeLow:"",judgeHigh:"",done:"All done for today.",sample:"Missed yesterday · 18 at risk"}],
+ ["harsh","Harsh",{miss:"Skipped yesterday",due:"Do it or fail the week",dueRisk:true,out:"Week failed",risk:"about to fail",judgeLow:"Not good enough.",judgeHigh:"On track. Keep going.",done:"All done. Do it again tomorrow.",sample:"Week failed · Not good enough"}],
+ ["nofilter","No filter",{miss:"Skipped this shit yesterday",due:"Do it today or the week's fucked",dueRisk:true,out:"Week's blown",risk:"about to blow it",judgeLow:"That's fucking weak.",judgeHigh:"Solid. Don't fuck it up.",done:"All done. Don't get cocky.",sample:"Week's blown · That's fucking weak"}]];
+function voice(){return (VOICES.find(v=>v[0]===(cfg().voice||"honest"))||VOICES[1])[2]}
+function rowTag(x,stt,miss,mk){if(mk)return '<span class="tag t-quiet">Not done</span>';const V=voice();
+  if(miss&&V.miss)return '<span class="tag t-risk">'+esc(V.miss)+'</span>';if(!stt)return "";
+  if(stt.s==="due"&&x.std<7)return '<span class="tag '+(V.dueRisk?'t-risk':'t-plan')+'">'+esc(V.due)+'</span>';if(stt.s==="planned")return '<span class="tag t-plan">Planned</span>';
+  if(stt.s==="out"&&V.out)return '<span class="tag t-quiet">'+esc(V.out)+'</span>';
   return ""}
 function countTxt(x,w){const d=x.done[w-1];return x.std?d+"/"+x.std:String(d)}
 function habitRow(x,k,w,stt,miss,M){const on=has(k,x.id),mk=isMiss(k,x.id)&&!on,tag=rowTag(x,stt,miss,mk),isT=k===key(M.t),pc=pval(k,x),g=pgoal(x);
@@ -1185,9 +1197,9 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
   const S2=M.hs.map(x=>({x,st:hstat(x,d),miss:missedYesterday(x,d),on:has(k,x.id),mk:isMiss(k,x.id)&&!has(k,x.id)}));
   let h='<div class="scr-head"><div class="grow"><div class="eyebrow2">'+esc(fmt(d,{weekday:"long"}))+(evening?" · evening":"")+' · Week '+w+' of '+M.N+'</div><h1 class="big">'+esc(fmt(d,{month:"long",day:"numeric"}))+'</h1></div>'+
    (isT?'':'<button class="btn" type="button" data-act="today">Today</button>')+'</div>';
-  {const wc=M.cw?wkChecks(M.hs,M.cw):{p:null},reach=isT?S2.filter(o=>!o.on&&!o.mk&&o.st&&o.x.std>0&&o.st.need===1&&o.st.s!=="out"&&o.st.s!=="met").length:0;
+  {const V=voice(),wc=M.cw?wkChecks(M.hs,M.cw):{p:null},reach=isT?S2.filter(o=>!o.on&&!o.mk&&o.st&&o.x.std>0&&o.st.need===1&&o.st.s!=="out"&&o.st.s!=="met").length:0;
    h+='<section class="hero" aria-label="At a glance"><div class="ringbox">'+ring(n,tot,92,9,n+" of "+tot+" habits ticked "+(isT?"today":"that day"))+'<div class="ringtxt"><b>'+n+'</b><span>of '+tot+(isT?' today':'')+'</span></div></div>'+
-   '<div class="herotxt"><div class="eyebrow">'+(M.cw?'This week':esc(cfg().label))+why()+'</div><div class="herobig"><b>'+pct(wc.p)+'</b> days done</div><div class="herosub">'+C.met+' of '+C.n+' targets hit'+(reach?' · <span class="good">'+reach+' can hit '+(reach===1?'its':'their')+' target today</span>':'')+'</div><button class="linkbtn" type="button" data-nav="dashboard">See progress</button></div></section>'}
+   '<div class="herotxt"><div class="eyebrow">'+(M.cw?'This week':esc(cfg().label))+why()+'</div><div class="herobig"><b>'+pct(wc.p)+'</b> days done'+(wc.p!=null&&(V.judgeLow||V.judgeHigh)?' <span class="judge'+(wc.p>=cfg().on?' hi':'')+'">'+esc(wc.p>=cfg().on?V.judgeHigh:V.judgeLow)+'</span>':'')+'</div><div class="herosub">'+C.met+' of '+C.n+' targets hit'+(V.risk&&C.risk?' · <span class="bad">'+C.risk+' '+esc(V.risk)+'</span>':'')+(reach?' · <span class="good">'+reach+' can hit '+(reach===1?'its':'their')+' target today</span>':'')+'</div><button class="linkbtn" type="button" data-nav="dashboard">See progress</button></div></section>'}
   if(S.timer&&isT){const th=hab(S.timer.id);if(th)h+='<div class="tbar" role="status"><b>'+(S.timer.phase==="rest"?"Break":"Pomodoro")+'</b><span class="grow">'+esc(th.name)+'</span><span class="ptime">'+fmtT(S.timer.end-Date.now())+'</span><button class="btn sm" type="button" data-act="ptimer" data-h="'+esc(th.id)+'" data-k="'+esc(S.timer.k)+'">'+(S.timer.phase==="rest"?"Skip break":"Stop")+'</button></div>'}
   h+='<nav class="daystrip" aria-label="Choose a day">';for(let i=0;i<7;i++){const dt=add(ws(w),i),dk=key(dt),cnt=M.hs.filter(x=>has(dk,x.id)).length,sel=dk===k,isTd=dk===key(M.t),ok=inRange(dt)&&dt<=M.t;
     h+='<button type="button" class="dayb'+(sel?" sel":"")+(isTd?" istoday":"")+(dt>M.t?" fut":"")+'" data-act="pickday" data-k="'+dk+'" aria-label="'+esc(fmt(dt,{weekday:"long",month:"long",day:"numeric"}))+'"'+(sel?' aria-current="date"':'')+(ok?'':' disabled')+'><span class="dl">'+DN[i]+'</span><span class="dn2">'+dt.getDate()+'</span><span class="db"><i style="width:'+Math.round(cnt/(tot||1)*100)+'%"></i></span></button>'}
@@ -1225,7 +1237,7 @@ function vToday(M){const d=S.day,k=key(d),w=weekOf(d),isT=k===key(M.t),mode=UI.t
     h+=sec(evening?"Before bed":"Do today",due.length+" left",due,evening?"evening":"");
     h+=sec("If you can","on pace, room to spare",flex);
     if(met.length)h+='<button type="button" class="metbtn" data-act="showmet" aria-expanded="'+!!S.showMet+'">Met for the week · '+met.length+'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="'+(S.showMet?"M6 15l6-6 6 6":"M6 9l6 6 6-6")+'" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'+(S.showMet?sec("Met for the week","extra days still count",met):"");
-    if(!due.length&&!flex.length&&!foc.length)h+='<div class="empty"><b>All done for '+(isT?"today":"that day")+'.</b> '+(met.length?"Everything left is already met for the week.":"Every habit is ticked.")+'</div>';
+    if(!due.length&&!flex.length&&!foc.length)h+='<div class="empty"><b>'+(isT?esc(voice().done):'All done for that day.')+'</b> '+(met.length?"Everything left is already met for the week.":"Every habit is ticked.")+'</div>';
   }
   if(prompts.length)h+=prompts[0];
   if(w===M.cw)h+=commitCard(M,commitWeek(M),false);
@@ -1672,6 +1684,8 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
   let h='<div><span class="eyebrow">This device</span><h1>Settings</h1></div>';
   {const cur=(FONTS.find(x=>x[0]===UI.fontSize)||FONTS[1])[0];
    h+='<section class="card set"><div class="row"><h2>Text size</h2><span class="spacer"></span><div class="seg" role="group" aria-label="Text size">'+FONTS.map(([v,l])=>'<button type="button" data-act="fsize" data-v="'+v+'" aria-pressed="'+(cur===v)+'"><span class="fs-'+v+'">'+l+'</span></button>').join("")+'</div></div><p class="note">Makes all the text in the app smaller or larger on this device.</p></section>'}
+  {const cv=cfg().voice||"honest",V=(VOICES.find(v=>v[0]===cv)||VOICES[1]);
+   h+='<section class="card set"><div class="row"><h2>App voice</h2></div><div class="seg vseg" role="group" aria-label="App voice">'+VOICES.map(([v,l])=>'<button type="button" data-act="avoice" data-v="'+v+'" aria-pressed="'+(cv===v)+'">'+l+'</button>').join("")+'</div><p class="note">How Today talks to you about misses: from kind, to plain facts, to harsh, to no filter (swearing). For example: <i>'+esc(V[2].sample)+'</i>. Your coach has its own voice on the Coach tab.</p></section>'}
   h+='<section class="card set"><div><h2>Connect Claude for coaching</h2><p class="note" style="margin-top:4px">Optional. Paste an Anthropic API key to get one-tap coaching on the Coach screen. Create a key at console.anthropic.com under API keys; requests are billed to that account. The key is stored only in this browser and sent only to api.anthropic.com.</p></div>'+
    '<div class="fld"><label for="api-key">Anthropic API key</label><input class="inp" id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" value="'+esc(K.key||"")+'"></div>'+
    '<div class="fld"><label for="api-tone">Coaching style</label><select id="api-tone" data-tone="1">'+TONES.map(([v,l])=>'<option value="'+v+'"'+((c.tone||"direct")===v?" selected":"")+'>'+esc(l)+'</option>').join("")+'</select></div>'+
@@ -1714,6 +1728,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-nav],[data
   if(a==="hall"||a==="openhabits"){S.edit=null;S.confirm=null;go("goals");setTimeout(()=>{const el=document.getElementById("areas-ed");if(el)el.scrollIntoView({block:"start"})},40);return}
   if(a==="fsize"){UI.fontSize=b.dataset.v;saveUI();applyFont();render();const f=document.querySelector('[data-act="fsize"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="planskip"){UI.planSkip=Number(b.dataset.w);saveUI();return render()}
+  if(a==="avoice"){cfg().voice=b.dataset.v;persist();render();const f=document.querySelector('[data-act="avoice"][data-v="'+b.dataset.v+'"]');if(f)f.focus({preventScroll:true});return}
   if(a==="nudgeok"){cfg().nudgeSeen=SY.nudge;persist();return render()}
   if(a==="tick"){const k=b.dataset.k,id=b.dataset.h;const arr=(D.ticks[k]||[]).slice();const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else{arr.push(id);setMiss(k,id,false)}
     if(i<0&&S.view==="today"){const hh=hab(id);S.undo={k,ids:[id],label:hh?hh.name:"habit"};armUndo()}
