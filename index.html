@@ -1454,7 +1454,7 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
    '<div class="fld"><label for="api-model">Model</label><select id="api-model">'+MODELS.map(([v,l])=>'<option value="'+v+'"'+((K.model||MODELS[0][0])===v?" selected":"")+'>'+esc(l)+'</option>').join("")+'</select></div>'+
    '<div class="row"><button class="btn primary" type="button" data-act="savekey">Save connection</button><button class="btn" type="button" data-act="testkey"'+(K.key?"":" disabled")+'>Test connection</button>'+(K.key?'<button class="btn danger" type="button" data-act="clearkey">Disconnect</button>':'')+'<span class="note" id="key-status">'+(K.key?"Connected on this device.":"Not connected.")+'</span></div></section>';
   h+=vSync(M);
-  h+=remindersCard();
+  if(APP)h+=remindersCard();
   h+=quarterCard(M);
   h+='<section class="card set"><div class="row"><h2>2026 outcomes</h2><span class="spacer"></span><button class="btn sm" type="button" data-act="addoutcome">+ Add outcome</button></div><p class="note">Your coach ties advice to these. Link each habit to the outcome it serves in the habit list below. Fill in any [brackets] with your own targets.</p>'+
    (c.outcomes.length?c.outcomes.map((o,i)=>{const hs=c.habits.filter(h=>h.outcome===o.id);return '<div class="oedit"><div class="row"><select data-of="area" data-i="'+i+'" aria-label="Outcome area">'+c.areas.concat(c.areas.indexOf(o.area)<0&&o.area?[o.area]:[]).concat(["Other"]).map(a=>'<option'+(a===o.area?" selected":"")+'>'+esc(a)+'</option>').join("")+'</select><span class="spacer"></span>'+
