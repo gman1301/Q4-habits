@@ -978,7 +978,7 @@ async function resolve(which){const r=SY.conflict;if(!r)return;SY.conflict=null;
   SY.busy=true;SY.state="syncing";setStatus();
   try{await push(true);SY.state="ok";toast("This device’s version is now online")}catch(e){SY.state=e&&e.status===undefined&&!e.auth?"offline":"error";SY.msg=SY.msg||"Couldn’t upload. Try Sync now."}
   SY.busy=false;setStatus();safeRender()}
-const appUrl=()=>APP?(HOSTED_URL||null):/^https?:$/.test(location.protocol)?location.origin+location.pathname:null;
+const appUrl=()=>APP?(HOSTED_URL||null):/^https?:$/.test(location.protocol)?location.origin+location.pathname:(HOSTED_URL||null);
 const shareUrl=()=>appUrl()&&SY.shareId?appUrl()+"?view="+SY.shareId:null;
 function encodeCode(){return "Q4SYNC2-"+K.sync.secret}
 function parseConn(v){const m=String(v).trim().match(/^Q4SYNC2-([0-9a-f]{24,})$/i);return m?{p:"sb",secret:m[1].toLowerCase()}:null}
@@ -1868,6 +1868,7 @@ function vSetup(M){const c=cfg();const areas=[];c.habits.forEach(h=>{if(areas.in
   h+=vSync(M);
   if(APP)h+=remindersCard();
   h+=quarterCard(M);
+  if(!APP)h+='<section class="card set"><div class="row"><div><h2>Download the app</h2><p class="note" style="margin-top:4px">One file you can keep on your computer and open in any browser, even offline. It has its own storage, so link it to your data with your sync code or restore a backup.</p></div><span class="spacer"></span><a class="btn primary" href="'+esc((HOSTED_URL||"")+"q4-habits-app.html")+'" download="q4-habits-app.html">Download</a></div></section>';
   h+='<section class="card set"><h2>Pomodoro timer</h2><div class="row"><div class="fld"><label for="pw">Focus length (minutes)</label><input class="inp" id="pw" type="number" min="1" max="120" step="1" inputmode="numeric" data-pref="work" value="'+(c.work||25)+'"></div><div class="fld"><label for="prest">Break length (minutes)</label><input class="inp" id="prest" type="number" min="0" max="60" step="1" inputmode="numeric" data-pref="rest" value="'+(c.rest==null?5:c.rest)+'"></div></div><p class="note">Start a Pomodoro from the clock on any habit in Today. When it ends it’s logged and the break starts on its own; set the break to 0 to skip breaks. Give a habit a Pomodoro goal in its settings above and it’s done once you finish that many in a day.</p></section>';
   h+='<section class="card set"><h2>Status thresholds</h2><div class="row"><div class="fld"><label for="th-on">On track at or above (%)</label><input class="inp" id="th-on" type="number" min="1" max="100" data-th="on" value="'+Math.round(c.on*100)+'"></div><div class="fld"><label for="th-watch">Watch at or above (%)</label><input class="inp" id="th-watch" type="number" min="1" max="100" data-th="watch" value="'+Math.round(c.watch*100)+'"></div></div></section>';
   const last=D.savedAt?new Date(D.savedAt).toLocaleString("en-CA",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"not yet";
